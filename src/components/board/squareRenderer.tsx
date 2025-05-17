@@ -15,6 +15,11 @@ export interface Props {
   clickedSquaresAtom: PrimitiveAtom<Square[]>;
   playableSquaresAtom: PrimitiveAtom<Square[]>;
   showPlayerMoveIconAtom?: PrimitiveAtom<boolean>;
+  trainingFeedback?: {
+    square: string;
+    icon: string;
+    alt: string;
+  };
 }
 
 export function getSquareRenderer({
@@ -22,6 +27,7 @@ export function getSquareRenderer({
   clickedSquaresAtom,
   playableSquaresAtom,
   showPlayerMoveIconAtom = atom(false),
+  trainingFeedback,
 }: Props) {
   const squareRenderer = forwardRef<HTMLDivElement, CustomSquareProps>(
     (props, ref) => {
@@ -64,6 +70,25 @@ export function getSquareRenderer({
           {children}
           {highlightSquareStyle && <div style={highlightSquareStyle} />}
           {playableSquareStyle && <div style={playableSquareStyle} />}
+          {/* Affichage de l’icône de feedback training si demandé et sur la bonne case */}
+          {trainingFeedback && trainingFeedback.square === square && (
+            <img
+              src={trainingFeedback.icon}
+              alt={trainingFeedback.alt}
+              style={{
+                position: "absolute",
+                top: 0,
+                right: 0,
+                transform: "translate(35%,-35%)",
+                width: 28,
+                height: 28,
+                zIndex: 120,
+                pointerEvents: "none",
+                opacity: 0.95,
+              }}
+            />
+          )}
+          {/* Aucun affichage de message texte d'erreur ici, seulement l'icône */}
           {moveClassification && showPlayerMoveIcon && square === toSquare && (
             <Image
               src={`/icons/${moveClassification}.png`}

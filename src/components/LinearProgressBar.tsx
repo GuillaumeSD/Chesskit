@@ -9,8 +9,6 @@ import {
 const LinearProgressBar = (
   props: LinearProgressProps & { value: number; label: string }
 ) => {
-  if (props.value === 0) return null;
-
   return (
     <Grid
       container

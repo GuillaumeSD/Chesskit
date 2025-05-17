@@ -22,6 +22,12 @@ import PlayerHeader from "./playerHeader";
 import { boardHueAtom, pieceSetAtom } from "./states";
 import tinycolor from "tinycolor2";
 
+export interface TrainingFeedback {
+  square: string; // ex: 'e4'
+  icon: string;   // chemin de l'icône
+  alt: string;    // texte alternatif
+}
+
 export interface Props {
   id: string;
   canPlay?: Color | boolean;
@@ -34,6 +40,7 @@ export interface Props {
   showBestMoveArrow?: boolean;
   showPlayerMoveIconAtom?: PrimitiveAtom<boolean>;
   showEvaluationBar?: boolean;
+  trainingFeedback?: TrainingFeedback;
 }
 
 export default function Board({
@@ -48,6 +55,7 @@ export default function Board({
   showBestMoveArrow = false,
   showPlayerMoveIconAtom,
   showEvaluationBar = false,
+  trainingFeedback,
 }: Props) {
   const boardRef = useRef<HTMLDivElement>(null);
   const game = useAtomValue(gameAtom);
@@ -239,12 +247,14 @@ export default function Board({
       clickedSquaresAtom,
       playableSquaresAtom,
       showPlayerMoveIconAtom,
+      trainingFeedback, // nouvelle prop transmise
     });
   }, [
     currentPositionAtom,
     clickedSquaresAtom,
     playableSquaresAtom,
     showPlayerMoveIconAtom,
+    trainingFeedback,
   ]);
 
   const customPieces = useMemo(
