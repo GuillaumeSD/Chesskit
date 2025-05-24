@@ -35,7 +35,8 @@ export default function PanelToolBar() {
   }, [undoBoardMove, boardHistory, resetBoard, board]);
 
   return (
-    <Grid container justifyContent="center" alignItems="center" size={12}>
+    <Grid container justifyContent="space-around" columns={2} xs={12}>
+	<Grid container item justifyContent="center" alignItems="center" xs={8}>
       <FlipBoardButton />
 
       <Tooltip title="Reset board">
@@ -61,11 +62,34 @@ export default function PanelToolBar() {
           </IconButton>
         </Grid>
       </Tooltip>
+	
+	<NextMoveButton />
+	
+	<Tooltip title="Go to previous key moment">
+	<Grid>
+    <IconButton
+      onClick={() => {}}
+		  sx={{ paddingX: 1.2, paddingY: 0.5 }}
+		>
+		  <Icon icon="solar:file-left-broken" width={24} height={24} />
+		</IconButton>
+	  </Grid>
+	</Tooltip>
 
-      <NextMoveButton />
-
+      	<Tooltip title="Go to next key moment">
+	<Grid>
+    <IconButton
+      onClick={() => {}}
+		  sx={{ paddingX: 1.2, paddingY: 0.5 }}
+		>
+		  <Icon icon="solar:file-right-broken" width={24} height={24} />
+		</IconButton>
+	  </Grid>
+	</Tooltip>
+	  	  
       <GoToLastPositionButton />
-
+      </Grid>
+      <Grid container item justifyContent="right" alignItems="center" xs={4}>
       <Tooltip title="Copy pgn">
         <Grid>
           <IconButton
@@ -81,6 +105,7 @@ export default function PanelToolBar() {
       </Tooltip>
 
       <SaveButton />
+      </Grid>
     </Grid>
   );
 }
