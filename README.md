@@ -42,7 +42,7 @@ Deployed on AWS with [AWS CDK](https://docs.aws.amazon.com/cdk/v2/guide/home.htm
 ## Running the app in dev mode
 
 > [!IMPORTANT]  
-> At least [Node.js](https://nodejs.org) 22.11 is required.
+> At least [Node.js](https://nodejs.org) 22.11 is required. You can run `nvm use` to switch to the version listed in `.nvmrc`.
 
 Install the dependencies :
 
