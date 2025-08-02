@@ -84,3 +84,6 @@ npm run deploy
 
 Chesskit is licensed under the GNU Affero General Public License 3. See [copying](COPYING.md) for
 details.
+
+## Growing thamks to you ❤️
+[![Stargazers over time](https://starchart.cc/GuillaumeSD/Chesskit.svg?variant=adaptive)](https://starchart.cc/GuillaumeSD/Chesskit)
