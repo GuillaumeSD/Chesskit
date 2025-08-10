@@ -50,11 +50,12 @@ export default function LichessInput({ onSelect }: Props) {
     if (!trimmed) return;
     const lower = trimmed.toLowerCase();
 
-    const exists = storedValues.some((u) => u.toLowerCase() === lower);
-    if (!exists) {
-      const updated = [trimmed, ...storedValues.slice(0, 7)];
-      setStoredValues(updated.join(","));
-    }
+    const updated = [
+      trimmed,
+      ...storedValues.filter((u) => u.toLowerCase() !== lower),
+    ].slice(0, 8);
+
+    setStoredValues(updated.join(","));
   };
 
   const deleteUsername = (usernameToDelete: string) => {
@@ -84,7 +85,7 @@ export default function LichessInput({ onSelect }: Props) {
 
   return (
     <>
-      <FormControl sx={{ m: 1, width: 300 }}>
+      <FormControl sx={{ my: 1, width: 300 }}>
         <Autocomplete
           freeSolo
           options={storedValues}
@@ -146,7 +147,7 @@ export default function LichessInput({ onSelect }: Props) {
               No games found. Please check your username.
             </span>
           ) : (
-            <List sx={{ width: "100%", maxWidth: 800 }}>
+            <List sx={{ width: "100%" }}>
               {games.map((game) => {
                 const perspectiveUserColor =
                   game.white.name.toLowerCase() ===

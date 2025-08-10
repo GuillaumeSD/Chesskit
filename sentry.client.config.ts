@@ -39,6 +39,9 @@ if (
       "RuntimeError: Out of bounds memory access (evaluating 'n.apply(null,arguments)')",
       "Uncaught RuntimeError: Aborted(CompileError: WebAssembly.instantiate():",
       "Uncaught RangeError: WebAssembly.Memory(): could not allocate memory",
+      "Aborted(NetworkError: Failed to execute 'send' on 'XMLHttpRequest'",
+      "Aborted(CompileError: WebAssembly.Module doesn't parse at byte",
+      "Aborted(NetworkError:  A network error occurred",
     ],
   });
 }

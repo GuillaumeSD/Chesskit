@@ -96,6 +96,29 @@ const fetchLichessEval = async (
   }
 };
 
+export const fetchLichessGame = async (
+  gameId: string,
+  signal?: AbortSignal
+): Promise<LichessResponse<string>> => {
+  try {
+    const res = await fetch(
+      `https://lichess.org/game/export/${gameId}?pgnInJson=true&clocks=true`,
+      { method: "GET", headers: { accept: "application/x-ndjson" }, signal }
+    );
+
+    if (res.status >= 400) {
+      throw new Error(`Error fetching game ${gameId} from Lichess`);
+    }
+
+    const gameData: LichessGame = await res.json();
+    return gameData.pgn;
+  } catch (error) {
+    console.error(error);
+
+    return { error: error instanceof Error ? error.message : "Unknown error" };
+  }
+};
+
 const formatLichessGame = (data: LichessGame): LoadedGame => {
   return {
     id: data.id,

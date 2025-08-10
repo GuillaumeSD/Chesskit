@@ -14,7 +14,7 @@ import GameResultChip from "./gameResultChip";
 
 interface Props {
   game: LoadedGame;
-  onClick?: () => void;
+  onClick: () => void;
   perspectiveUserColor: "white" | "black";
 }
 
@@ -38,34 +38,34 @@ export const GameItem: React.FC<Props> = ({
         transition: "all 0.2s ease-in-out",
         "&:hover": {
           backgroundColor: theme.palette.action.hover,
-          transform: "translateY(-1px)",
           boxShadow: theme.shadows[3],
         },
         border: `1px solid ${theme.palette.divider}`,
-        cursor: onClick ? "pointer" : "default",
+        cursor: "pointer",
       }}
       onClick={onClick}
     >
       <ListItemText
+        disableTypography
         primary={
           <Box
             sx={{
               display: "flex",
               alignItems: "center",
-              flexWrap: "wrap",
-              gap: 1.5,
+              gap: { xs: 1, sm: 1.5 },
               mb: 1,
             }}
           >
             <Typography
               variant="subtitle1"
               component="span"
+              noWrap
               sx={{
                 fontWeight: "700",
                 color: whiteWon
                   ? theme.palette.success.main
                   : theme.palette.text.primary,
-                opacity: blackWon ? 0.7 : 1,
+                opacity: whiteWon ? 1 : blackWon ? 0.7 : 0.8,
               }}
             >
               {formatPlayerName(white)} ({white.rating})
@@ -74,7 +74,10 @@ export const GameItem: React.FC<Props> = ({
             <Typography
               variant="body2"
               component="span"
-              sx={{ color: theme.palette.text.secondary, fontWeight: "500" }}
+              sx={{
+                color: theme.palette.text.secondary,
+                fontWeight: "500",
+              }}
             >
               vs
             </Typography>
@@ -82,12 +85,13 @@ export const GameItem: React.FC<Props> = ({
             <Typography
               variant="subtitle1"
               component="span"
+              noWrap
               sx={{
                 fontWeight: "700",
                 color: blackWon
                   ? theme.palette.success.main
                   : theme.palette.text.primary,
-                opacity: whiteWon ? 0.7 : 1,
+                opacity: blackWon ? 1 : whiteWon ? 0.7 : 0.8,
               }}
             >
               {formatPlayerName(black)} ({black.rating})
@@ -103,7 +107,6 @@ export const GameItem: React.FC<Props> = ({
           <Box
             sx={{
               display: "flex",
-              flexWrap: "wrap",
               gap: 1,
               alignItems: "center",
             }}
@@ -113,30 +116,7 @@ export const GameItem: React.FC<Props> = ({
             <DateChip date={date} />
           </Box>
         }
-        sx={{ mr: 2 }}
       />
-
-      {/* <Box sx={{ display: "flex", alignItems: "center", ml: "auto" }}>
-        <Tooltip title="View on Chess.com">
-          <IconButton
-            onClick={(e) => {
-              e.stopPropagation();
-              window.open(url, "_blank");
-            }}
-            size="small"
-            sx={{
-              color: theme.palette.primary.main,
-              "&:hover": {
-                backgroundColor: theme.palette.action.hover,
-                transform: "scale(1.1)",
-              },
-              transition: "all 0.2s ease-in-out",
-            }}
-          >
-            <Icon icon="material-symbols:open-in-new" />
-          </IconButton>
-        </Tooltip>
-      </Box> */}
     </ListItem>
   );
 };

@@ -91,12 +91,14 @@ export default function NewGameDialog({ open, onClose, setGame }: Props) {
       open={open}
       onClose={handleClose}
       maxWidth="md"
-      fullWidth
       slotProps={{
         paper: {
           sx: {
             position: "fixed",
             top: 0,
+            width: "calc(100% - 10px)",
+            marginY: { xs: "3vh", sm: 5 },
+            maxHeight: { xs: "calc(100% - 5vh)", sm: "calc(100% - 64px)" },
           },
         },
       }}
@@ -104,7 +106,7 @@ export default function NewGameDialog({ open, onClose, setGame }: Props) {
       <DialogTitle marginY={1} variant="h5">
         {setGame ? "Load a game" : "Add a game to your database"}
       </DialogTitle>
-      <DialogContent>
+      <DialogContent sx={{ padding: { xs: 2, md: 3 } }}>
         <Grid
           container
           marginTop={1}
@@ -112,7 +114,7 @@ export default function NewGameDialog({ open, onClose, setGame }: Props) {
           justifyContent="start"
           rowGap={2}
         >
-          <FormControl sx={{ m: 1, width: 150 }}>
+          <FormControl sx={{ my: 1, mr: 2, width: 150 }}>
             <InputLabel id="dialog-select-label">Game origin</InputLabel>
             <Select
               labelId="dialog-select-label"

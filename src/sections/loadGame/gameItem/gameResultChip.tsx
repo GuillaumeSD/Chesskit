@@ -1,4 +1,3 @@
-import { Icon } from "@iconify/react";
 import { Chip, Theme, Tooltip, useTheme } from "@mui/material";
 import React from "react";
 
@@ -13,7 +12,7 @@ export default function GameResultChip({
 }: Props) {
   const theme = useTheme();
 
-  const { label, color, bgColor, icon } = getResultSpecs(
+  const { label, color, bgColor } = getResultSpecs(
     theme,
     perspectiveUserColor,
     result
@@ -22,14 +21,13 @@ export default function GameResultChip({
   return (
     <Tooltip title={label}>
       <Chip
-        icon={icon}
         label={result}
         size="small"
         sx={{
           color,
           backgroundColor: bgColor,
           fontWeight: "600",
-          minWidth: icon ? 65 : 40,
+          minWidth: { sm: 40 },
           border: `1px solid ${color}20`,
           "& .MuiChip-icon": {
             color: color,
@@ -53,7 +51,6 @@ const getResultSpecs = (
       label: result === "1-0" ? "White won" : "Black won",
       color: theme.palette.success.main,
       bgColor: `${theme.palette.success.main}1A`,
-      icon: <Icon icon="material-symbols:emoji-events" />,
     };
   }
 
@@ -73,7 +70,6 @@ const getResultSpecs = (
       label: "Draw",
       color: theme.palette.info.main,
       bgColor: `${theme.palette.info.main}1A`,
-      icon: <Icon icon="material-symbols:handshake" />,
     };
   }
 
@@ -81,6 +77,5 @@ const getResultSpecs = (
     label: "Game in Progress",
     color: theme.palette.text.secondary,
     bgColor: theme.palette.action.hover,
-    icon: <Icon icon="material-symbols:play-circle-outline" />,
   };
 };

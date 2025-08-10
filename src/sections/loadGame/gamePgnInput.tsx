@@ -37,7 +37,7 @@ export default function GamePgnInput({ pgn, setPgn }: Props) {
         component="label"
         startIcon={<Icon icon="material-symbols:upload" />}
       >
-        Choose PGN File
+        Upload PGN File
         <input type="file" hidden accept=".pgn" onChange={handleFileChange} />
       </Button>
     </FormControl>

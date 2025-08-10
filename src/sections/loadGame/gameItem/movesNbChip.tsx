@@ -9,7 +9,7 @@ export default function MovesNbChip({ movesNb }: Props) {
   if (!movesNb) return null;
 
   return (
-    <Tooltip title="Number of Moves">
+    <Tooltip title="Number of Moves" sx={{ overflow: "hidden" }}>
       <Chip
         icon={<Icon icon="heroicons:hashtag-20-solid" />}
         label={`${Math.ceil(movesNb / 2)} moves`}

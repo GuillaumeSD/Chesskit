@@ -59,9 +59,10 @@ export default function GameSettingsDialog({ open, onClose }: Props) {
     setParsingError("");
 
     try {
-      const startingFen = startingPositionInput.startsWith("[")
-        ? getGameFromPgn(startingPositionInput).fen()
-        : startingPositionInput || undefined;
+      const input = startingPositionInput.trim();
+      const startingFen = input.startsWith("[")
+        ? getGameFromPgn(input).fen()
+        : input || undefined;
 
       resetGame({
         white: {

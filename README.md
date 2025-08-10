@@ -41,9 +41,11 @@ Deployed on AWS with [AWS CDK](https://docs.aws.amazon.com/cdk/v2/guide/home.htm
 
 ## Running the app in dev mode
 
+
 ### Using Node.js
 
-At least [Node.js](https://nodejs.org) 22.11 is required.
+> [!IMPORTANT]  
+> At least [Node.js](https://nodejs.org) 22.11 is required.
 
 Install the dependencies :
 
@@ -99,3 +101,6 @@ npm run deploy
 
 Chesskit is licensed under the GNU Affero General Public License 3. See [copying](COPYING.md) for
 details.
+
+## Growing thanks to you ❤️
+[![Stargazers over time](https://starchart.cc/GuillaumeSD/Chesskit.svg?variant=adaptive)](https://starchart.cc/GuillaumeSD/Chesskit)
