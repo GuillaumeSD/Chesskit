@@ -18,7 +18,6 @@ export const getLineWinPercentage = (line: LineEval): number => {
 };
 
 const getWinPercentageFromMate = (mate: number): number => {
-  // Mate positions should be 100% for white advantage, 0% for black advantage
   return mate > 0 ? 100 : 0;
 };
 
