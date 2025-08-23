@@ -41,8 +41,9 @@ export default function AnalysisTab(props: GridProps) {
       <Stack
         justifyContent="center"
         alignItems="center"
-        rowGap={1}
+        rowGap={2}
         minWidth={gameEval ? "min(25rem, 95vw)" : undefined}
+        width="100%"
       >
         {gameEval && (
           <PlayersMetric
@@ -69,6 +70,8 @@ export default function AnalysisTab(props: GridProps) {
             Game is over
           </Typography>
         )}
+
+        {/* GeminiExplanation component has been moved to a dialog */}
       </Stack>
 
       <EngineLines size={{ lg: gameEval ? undefined : 12 }} />

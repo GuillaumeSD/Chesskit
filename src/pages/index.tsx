@@ -18,6 +18,7 @@ import { useEffect, useState } from "react";
 import { Icon } from "@iconify/react";
 import EngineSettingsButton from "@/sections/engineSettings/engineSettingsButton";
 import GraphTab from "@/sections/analysis/panelBody/graphTab";
+import GeminiExplanationDialog from "@/components/geminiExplanationDialog";
 import { PageTitle } from "@/components/pageTitle";
 
 export default function GameAnalysis() {
@@ -177,6 +178,8 @@ export default function GameAnalysis() {
       </Grid>
 
       <EngineSettingsButton />
+      {/* Removed GeminiSettingsButton since we're now using the dialog directly */}
+      <GeminiExplanationDialog />
     </Grid>
   );
 }
