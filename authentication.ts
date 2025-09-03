@@ -1,5 +1,4 @@
-// User Authentication Service Example with NextAuth.js
-npm install next-auth
+// User Authentication Service Example with NextAuth.js-auth
 import NextAuth from 'next-auth'
 import Providers from 'next-auth/providers'
 
