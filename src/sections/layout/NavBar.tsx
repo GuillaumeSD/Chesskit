@@ -11,10 +11,8 @@ import NavLink from "@/components/NavLink";
 import Image from "next/image";
 import { styled } from "@mui/material/styles";
 
-interface Props {
-  darkMode: boolean;
-  switchDarkMode: () => void;
-}
+// 👇 context import
+import { useThemeMode } from "@/context/ThemeContext";
 
 // Styled component to make the link look like a button
 const StyledIconButtonLink = styled("a")({
@@ -22,15 +20,19 @@ const StyledIconButtonLink = styled("a")({
   display: "inline-flex",
   alignItems: "center",
   justifyContent: "center",
-  textDecoration: "none", // Remove underline from link
+  textDecoration: "none",
   "&:hover": {
-    cursor: "pointer", // Change cursor on hover
+    cursor: "pointer",
   },
 });
 
-export default function NavBar({ darkMode, switchDarkMode }: Props) {
+export default function NavBar() {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const router = useRouter();
+
+  // 👇 context se dark/light mode ka state aur toggle le
+  const { mode, toggleTheme } = useThemeMode();
+  const darkMode = mode === "dark";
 
   useEffect(() => {
     setDrawerOpen(false);
@@ -101,9 +103,10 @@ export default function NavBar({ darkMode, switchDarkMode }: Props) {
             </IconButton>
           </StyledIconButtonLink>
 
+          {/* 👇 yaha ab context based toggle */}
           <IconButton
             sx={{ ml: "min(0.6rem, 0.8vw)" }}
-            onClick={switchDarkMode}
+            onClick={toggleTheme}
             color="inherit"
             edge="end"
           >

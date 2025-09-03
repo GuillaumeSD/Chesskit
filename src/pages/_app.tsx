@@ -6,14 +6,20 @@ import { AppProps } from "next/app";
 import Layout from "@/sections/layout";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
+// 👇 ye add kar
+import { ThemeModeProvider } from "@/context/ThemeContext";
+
 const queryClient = new QueryClient();
 
 export default function MyApp({ Component, pageProps }: AppProps) {
   return (
     <QueryClientProvider client={queryClient}>
-      <Layout>
-        <Component {...pageProps} />
-      </Layout>
+      {/* 👇 pura app ko wrap kar diya ThemeModeProvider ke andar */}
+      <ThemeModeProvider>
+        <Layout>
+          <Component {...pageProps} />
+        </Layout>
+      </ThemeModeProvider>
     </QueryClientProvider>
   );
 }
