@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: chesskit
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: chesskit
+  template:
+    metadata:
+      labels:
+        app: chesskit
+    spec:
+      containers:
+      - name: chesskit
+        image: yourrepo/chesskit:latest
+        ports:
+        - containerPort: 3000
