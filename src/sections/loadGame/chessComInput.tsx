@@ -70,7 +70,7 @@ export default function ChessComInput({ onSelect }: Props) {
     setHasEdited(true);
   };
 
-  const debouncedUsername = useDebounce(chessComUsername, 300);
+  const debouncedUsername = useDebounce(chessComUsername, 450);
 
   const {
     data: games,

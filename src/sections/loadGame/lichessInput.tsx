@@ -69,7 +69,7 @@ const [lichessUsername, setLichessUsername] = useState(rawStoredValue?.split(","
     setHasEdited(true);
   };
 
-  const debouncedUsername = useDebounce(lichessUsername, 500);
+  const debouncedUsername = useDebounce(lichessUsername, 450);
 
   const {
     data: games,
