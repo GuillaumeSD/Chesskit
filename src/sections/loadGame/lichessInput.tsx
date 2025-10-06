@@ -23,7 +23,7 @@ export default function LichessInput({ onSelect }: Props) {
     "lichess-username",
     ""
   );
-  const [lichessUsername, setLichessUsername] = useState("");
+  const [lichessUsername, setLichessUsername] = useState(rawStoredValue?.split(",")[0] ?? "");
   const [hasEdited, setHasEdited] = useState(false);
 
   const storedValues = useMemo(() => {

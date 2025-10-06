@@ -23,7 +23,7 @@ export default function ChessComInput({ onSelect }: Props) {
     "chesscom-username",
     ""
   );
-  const [chessComUsername, setChessComUsername] = useState("");
+  const [chessComUsername, setChessComUsername] = useState(rawStoredValue?.split(",")[0] ?? "");
   const [hasEdited, setHasEdited] = useState(false);
 
   const storedValues = useMemo(() => {
