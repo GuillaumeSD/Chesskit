@@ -23,7 +23,7 @@ export default function LichessInput({ onSelect }: Props) {
     "lichess-username",
     ""
   );
-  const [lichessUsername, setLichessUsername] = useState(rawStoredValue?.split(",")[0] ?? "");
+const [lichessUsername, setLichessUsername] = useState(rawStoredValue?.split(",")[0] ?? "");
   const [hasEdited, setHasEdited] = useState(false);
 
   const storedValues = useMemo(() => {
@@ -73,7 +73,8 @@ export default function LichessInput({ onSelect }: Props) {
 
   const {
     data: games,
-    isFetching,
+    isLoading,
+    isRefetching,
     isError,
   } = useQuery({
     queryKey: ["LichessUserGames", debouncedUsername],
@@ -127,6 +128,8 @@ export default function LichessInput({ onSelect }: Props) {
         />
       </FormControl>
 
+      {isRefetching && <CircularProgress sx={{ ml: 2 }} />}
+
       {debouncedUsername && (
         <Grid
           container
@@ -136,7 +139,7 @@ export default function LichessInput({ onSelect }: Props) {
           minHeight={100}
           size={12}
         >
-          {isFetching ? (
+          {isLoading ? (
             <CircularProgress />
           ) : isError ? (
             <span style={{ color: "salmon" }}>

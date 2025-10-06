@@ -74,7 +74,8 @@ export default function ChessComInput({ onSelect }: Props) {
 
   const {
     data: games,
-    isFetching,
+    isRefetching,
+    isLoading,
     isError,
   } = useQuery({
     queryKey: ["CCUserGames", debouncedUsername],
@@ -128,6 +129,8 @@ export default function ChessComInput({ onSelect }: Props) {
         />
       </FormControl>
 
+      {isRefetching && <CircularProgress sx={{ ml: 2 }} />}
+
       {debouncedUsername && (
         <Grid
           container
@@ -137,7 +140,7 @@ export default function ChessComInput({ onSelect }: Props) {
           minHeight={100}
           size={12}
         >
-          {isFetching ? (
+          {isLoading ? (
             <CircularProgress />
           ) : isError ? (
             <span style={{ color: "salmon" }}>
