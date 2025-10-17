@@ -574,12 +574,12 @@ export default function ChessKitLanding() {
               </Link>
               <p className="mt-4 text-xs">
                 Landing page built with ❤️ by               <Link
-                href="https://github.com/Speedauge"
+                href="https://github.com/Armitryx"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-[#3b9ac6] hover:underline"
               >
-                SpeedAuge
+                Armitryx
               </Link>
               </p>
             </p>
