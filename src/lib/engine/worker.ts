@@ -45,6 +45,11 @@ export const sendCommandsToWorker = (
 };
 
 export const getRecommendedWorkersNb = (): number => {
+  // Return default value if navigator is not available (SSR)
+  if (typeof navigator === "undefined") {
+    return 2; // Safe default for server-side rendering
+  }
+
   const maxWorkersNbFromThreads = Math.max(
     1,
     Math.round(navigator.hardwareConcurrency - 4),
