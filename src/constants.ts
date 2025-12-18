@@ -16,6 +16,8 @@ export const CLASSIFICATION_COLORS: Record<MoveClassification, string> = {
   [MoveClassification.Blunder]: "#df5353",
 };
 
+export const ENGINE_BEST_MOVE_COLOR = "#cccccc";
+
 export const DEFAULT_ENGINE: EngineName = EngineName.Stockfish17Lite;
 export const STRONGEST_ENGINE: EngineName = EngineName.Stockfish17;
 

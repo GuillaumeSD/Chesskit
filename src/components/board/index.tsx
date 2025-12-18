@@ -16,7 +16,7 @@ import { Chess } from "chess.js";
 import { getSquareRenderer } from "./squareRenderer";
 import { CurrentPosition } from "@/types/eval";
 import EvaluationBar from "./evaluationBar";
-import { CLASSIFICATION_COLORS } from "@/constants";
+import { CLASSIFICATION_COLORS, ENGINE_BEST_MOVE_COLOR } from "@/constants";
 import { Player } from "@/types/game";
 import PlayerHeader from "./playerHeader";
 import { boardHueAtom, pieceSetAtom } from "./states";
@@ -208,8 +208,20 @@ export default function Board({
   );
 
   const customArrows: Arrow[] = useMemo(() => {
+    const bestCurrentMove = position?.eval?.bestMove;
     const bestMove = position?.lastEval?.bestMove;
     const moveClassification = position?.eval?.moveClassification;
+
+    const result = [];
+
+    if (bestCurrentMove && showBestMoveArrow) {
+      const bestCurrentMoveArrow = [
+        bestCurrentMove.slice(0, 2),
+        bestCurrentMove.slice(2, 4),
+        tinycolor(ENGINE_BEST_MOVE_COLOR).spin(-boardHue).toHexString(),
+      ] as Arrow;
+      result.push(bestCurrentMoveArrow);
+    }
 
     if (
       bestMove &&
@@ -227,10 +239,10 @@ export default function Board({
           .toHexString(),
       ] as Arrow;
 
-      return [bestMoveArrow];
+      result.push(bestMoveArrow);
     }
 
-    return [];
+    return result;
   }, [position, showBestMoveArrow, boardHue]);
 
   const SquareRenderer: CustomSquareRenderer = useMemo(() => {
