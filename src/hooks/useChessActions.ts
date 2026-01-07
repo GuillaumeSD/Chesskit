@@ -1,4 +1,4 @@
-import { getGameFromPgn, setGameHeaders } from "@/lib/chess";
+import { getGameFromFen, getGameFromPgn, setGameHeaders } from "@/lib/chess";
 import { playIllegalMoveSound, playSoundFromMove } from "@/lib/sounds";
 import { Player } from "@/types/game";
 import { Chess, Move, DEFAULT_POSITION } from "chess.js";
@@ -11,6 +11,7 @@ export interface resetGameParams {
   black?: Player;
   noHeaders?: boolean;
 }
+type GameSource = "fen" | "pgn";
 
 export const useChessActions = (chessAtom: PrimitiveAtom<Chess>) => {
   const [game, setGame] = useAtom(chessAtom);
@@ -53,9 +54,31 @@ export const useChessActions = (chessAtom: PrimitiveAtom<Chess>) => {
   }, [game]);
 
   const resetToStartingPosition = useCallback(
-    (pgn?: string) => {
-      const newGame = pgn ? getGameFromPgn(pgn) : copyGame();
-      newGame.load(newGame.getHeaders().FEN || DEFAULT_POSITION, {
+    (input?: string, source?: GameSource) => {
+      let newGame: Chess;
+
+      if (input) {
+        if (source === "fen") {
+          newGame = getGameFromFen(input);
+        } else if (source === "pgn") {
+          newGame = getGameFromPgn(input);
+        } else {
+          newGame = getGameFromPgn(input);
+        }
+      } else {
+        newGame = copyGame();
+      }
+
+      const currentHeaders = newGame.getHeaders();
+      let fenToLoad = DEFAULT_POSITION;
+
+      if (source === "fen" && input) {
+        fenToLoad = input;
+      } else if (currentHeaders.FEN) {
+        fenToLoad = currentHeaders.FEN;
+      }
+
+      newGame.load(fenToLoad, {
         preserveHeaders: true,
       });
       setGame(newGame);

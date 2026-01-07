@@ -18,7 +18,7 @@ import { fetchLichessGame } from "@/lib/lichess";
 export default function LoadGame() {
   const router = useRouter();
   const game = useAtomValue(gameAtom);
-  const { setPgn: setGamePgn } = useChessActions(gameAtom);
+  const { setPgn: setGamePgn, reset: resetGame } = useChessActions(gameAtom);
   const { resetToStartingPosition: resetBoard } = useChessActions(boardAtom);
   const { gameFromUrl } = useGameDatabase();
   const setEval = useSetAtom(gameEvalAtom);
@@ -28,17 +28,51 @@ export default function LoadGame() {
   const joinedGameHistory = useMemo(() => game.history().join(), [game]);
 
   const resetAndSetGamePgn = useCallback(
-    (pgn: string, orientation?: boolean, gameEval?: GameEval) => {
-      const gameFromPgn = new Chess();
-      gameFromPgn.loadPgn(pgn);
-      if (joinedGameHistory === gameFromPgn.history().join()) return;
+    (
+      input: string,
+      orientation?: boolean,
+      gameEval?: GameEval,
+      source: "fen" | "pgn" = "pgn"
+    ) => {
+      const gameFromInput = new Chess();
 
-      resetBoard(pgn);
+      try {
+        if (source === "fen") {
+          gameFromInput.load(input);
+        } else {
+          gameFromInput.loadPgn(input);
+        }
+      } catch (e) {
+        console.error("Erro while loading the game:", e);
+        return;
+      }
+
+      if (
+        source === "pgn" &&
+        joinedGameHistory === gameFromInput.history().join()
+      ) {
+        return;
+      }
+
+      resetBoard(input, source);
       setEval(gameEval);
-      setGamePgn(pgn);
+
+      if (source === "fen") {
+        resetGame({ fen: input });
+      } else {
+        setGamePgn(input);
+      }
+
       setBoardOrientation(orientation ?? true);
     },
-    [joinedGameHistory, resetBoard, setGamePgn, setEval, setBoardOrientation]
+    [
+      joinedGameHistory,
+      resetBoard,
+      setGamePgn,
+      resetGame,
+      setEval,
+      setBoardOrientation,
+    ]
   );
 
   const { lichessGameId, orientation: orientationParam } = router.query;
@@ -101,7 +135,17 @@ export default function LoadGame() {
           undefined,
           { shallow: true, scroll: false }
         );
-        resetAndSetGamePgn(game.pgn());
+        const headers = game.getHeaders();
+        const isFenConfiguration = headers["SetUp"] === "1";
+        const hasNoMoves = game.history().length === 0;
+
+        if (isFenConfiguration || hasNoMoves) {
+          const fen = game.fen();
+          resetAndSetGamePgn(fen, undefined, undefined, "fen");
+        } else {
+          const pgn = game.pgn();
+          resetAndSetGamePgn(pgn, undefined, undefined, "pgn");
+        }
       }}
     />
   );

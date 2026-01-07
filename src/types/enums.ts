@@ -2,6 +2,7 @@ export enum GameOrigin {
   Pgn = "pgn",
   ChessCom = "chesscom",
   Lichess = "lichess",
+  Fen = "fen",
 }
 
 export enum EngineName {

@@ -25,6 +25,27 @@ export const getGameFromPgn = (pgn: string): Chess => {
   return game;
 };
 
+export const getGameFromFen = (fenInput: string): Chess => {
+  const game = new Chess();
+
+  let fen = fenInput.trim();
+
+  const parts = fen.split(/\s+/);
+
+  if (parts.length < 6) {
+    const defaults = ["w", "-", "-", "0", "1"];
+    const missingDefaults = defaults.slice(parts.length - 1);
+    fen = `${fen} ${missingDefaults.join(" ")}`;
+  }
+
+  game.load(fen);
+
+  game.setHeader("FEN", fen);
+  game.setHeader("SetUp", "1");
+
+  return game;
+};
+
 export const formatGameToDatabase = (game: Chess): Omit<Game, "id"> => {
   const headers: Record<string, string | undefined> = game.getHeaders();
 
