@@ -43,7 +43,7 @@ export default function LoadGame() {
           gameFromInput.loadPgn(input);
         }
       } catch (e) {
-        console.error("Erro while loading the game:", e);
+        console.error("Error while loading the game:", e);
         return;
       }
 
