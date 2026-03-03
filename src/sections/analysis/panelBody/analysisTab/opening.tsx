@@ -1,14 +1,16 @@
 import { useAtomValue } from "jotai";
 import { Grid2 as Grid, Skeleton, Typography } from "@mui/material";
-import { currentPositionAtom } from "../../states";
+import { boardAtom, currentPositionAtom } from "../../states";
 
 export default function Opening() {
   const position = useAtomValue(currentPositionAtom);
 
+  const board = useAtomValue(boardAtom);
   const lastMove = position?.lastMove;
   if (!lastMove) return null;
+  const isStale = position?.fen !== board.fen();
 
-  const opening = position?.eval?.opening || position.opening;
+  const opening = (!isStale && position?.eval?.opening) || position.opening;
 
   if (!opening) {
     return (

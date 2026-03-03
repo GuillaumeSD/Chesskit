@@ -35,20 +35,17 @@ export const useChessActions = (chessAtom: PrimitiveAtom<Chess>) => {
 
   const copyGame = useCallback(() => {
     const newGame = new Chess();
-
-    if (game.history().length === 0) {
-      const pgnSplitted = game.pgn().split("]");
-      if (
-        ["1-0", "0-1", "1/2-1/2", "*"].includes(
-          pgnSplitted.at(-1)?.trim() ?? ""
-        )
-      ) {
-        newGame.loadPgn(pgnSplitted.slice(0, -1).join("]") + "]");
-        return newGame;
+    try {
+      newGame.loadPgn(game.pgn());
+    } catch {
+      // Fallback for custom-FEN or edge-case PGN formats
+      newGame.load(game.getHeaders().FEN || DEFAULT_POSITION, {
+        preserveHeaders: true,
+      });
+      for (const move of game.history()) {
+        newGame.move(move);
       }
     }
-
-    newGame.loadPgn(game.pgn());
     return newGame;
   }, [game]);
 
@@ -92,12 +89,17 @@ export const useChessActions = (chessAtom: PrimitiveAtom<Chess>) => {
     (moves: string[]) => {
       const newGame = copyGame();
 
-      let lastMove: Move | null = null;
-      for (const move of moves) {
-        lastMove = newGame.move(move);
+      try {
+        let lastMove: Move | null = null;
+        for (const move of moves) {
+          lastMove = newGame.move(move);
+        }
+        setGame(newGame);
+        if (lastMove) playSoundFromMove(lastMove);
+      } catch (e) {
+        console.warn("Invalid move sequence", e);
+        playIllegalMoveSound();
       }
-      setGame(newGame);
-      if (lastMove) playSoundFromMove(lastMove);
     },
     [copyGame, setGame]
   );

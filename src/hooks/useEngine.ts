@@ -11,6 +11,8 @@ export const useEngine = (engineName: EngineName | undefined) => {
   const [engine, setEngine] = useState<UciEngine | null>(null);
 
   useEffect(() => {
+    let isMounted = true;
+
     if (!engineName) return;
 
     if (engineName !== EngineName.Stockfish11 && !isWasmSupported()) {
@@ -18,11 +20,22 @@ export const useEngine = (engineName: EngineName | undefined) => {
     }
 
     pickEngine(engineName).then((newEngine) => {
+      if (!isMounted) {
+        // If React unmounted this hook while the worker was booting,
+        // instantly kill the orphaned worker to prevent invisible memory/CPU leaks
+        newEngine.shutdown();
+        return;
+      }
+
       setEngine((prev) => {
         prev?.shutdown();
         return newEngine;
       });
     });
+
+    return () => {
+      isMounted = false;
+    };
   }, [engineName]);
 
   return engine;

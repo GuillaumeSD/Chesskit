@@ -25,3 +25,5 @@ export const engineWorkersNbAtom = atomWithStorage(
 export const evaluationProgressAtom = atom(0);
 
 export const savedEvalsAtom = atom<SavedEvals>({});
+
+export const boardAnimationDurationAtom = atom(150);

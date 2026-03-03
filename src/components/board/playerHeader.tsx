@@ -4,7 +4,7 @@ import { Avatar, Grid2 as Grid, Stack, Typography } from "@mui/material";
 import CapturedPieces from "./capturedPieces";
 import { PrimitiveAtom, useAtomValue } from "jotai";
 import { Chess } from "chess.js";
-import { useMemo } from "react";
+import { useMemo, memo } from "react";
 import { getPaddedNumber } from "@/lib/helpers";
 
 export interface Props {
@@ -13,7 +13,11 @@ export interface Props {
   gameAtom: PrimitiveAtom<Chess>;
 }
 
-export default function PlayerHeader({ color, player, gameAtom }: Props) {
+const PlayerHeader = memo(function PlayerHeader({
+  color,
+  player,
+  gameAtom,
+}: Props) {
   const game = useAtomValue(gameAtom);
 
   const gameFen = game.fen();
@@ -96,7 +100,7 @@ export default function PlayerHeader({ color, player, gameAtom }: Props) {
       )}
     </Grid>
   );
-}
+});
 
 const getClock = (comment: string | undefined) => {
   if (!comment) return undefined;
@@ -111,3 +115,5 @@ const getClock = (comment: string | undefined) => {
     tenths: match[4] ? parseInt(match[4]) : 0,
   };
 };
+
+export default PlayerHeader;

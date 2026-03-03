@@ -2,8 +2,6 @@ import { EngineWorker } from "@/types/engine";
 import { isIosDevice, isMobileDevice } from "./shared";
 
 export const getEngineWorker = (enginePath: string): EngineWorker => {
-  console.log(`Creating worker from ${enginePath}`);
-
   const worker = new window.Worker(enginePath);
 
   const engineWorker: EngineWorker = {
@@ -34,6 +32,7 @@ export const sendCommandsToWorker = (
       onNewMessage?.(messages);
 
       if (data.startsWith(finalMessage)) {
+        worker.listen = () => null; // Cleanup memory and prevent dangling state updates
         resolve(messages);
       }
     };

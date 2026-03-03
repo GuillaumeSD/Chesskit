@@ -1,5 +1,7 @@
 import { Head, Html, Main, NextScript } from "next/document";
 
+const DEFAULT_PIECE_SET = "maestro";
+
 export default function Document() {
   return (
     <Html lang="en">
@@ -22,6 +24,28 @@ export default function Document() {
           sizes="16x16"
           href="/favicon-16x16.png"
         />
+
+        <link
+          rel="preload"
+          href={`/piece/${DEFAULT_PIECE_SET}/wP.svg`}
+          as="image"
+        />
+        <link
+          rel="preload"
+          href={`/piece/${DEFAULT_PIECE_SET}/bP.svg`}
+          as="image"
+        />
+        <link
+          rel="preload"
+          href={`/piece/${DEFAULT_PIECE_SET}/wK.svg`}
+          as="image"
+        />
+        <link
+          rel="preload"
+          href={`/piece/${DEFAULT_PIECE_SET}/bK.svg`}
+          as="image"
+        />
+
         <meta
           name="description"
           content="Analyze your chess games for free on any device with Stockfish!"

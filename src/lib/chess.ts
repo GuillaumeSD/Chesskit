@@ -251,36 +251,42 @@ export const getIsPieceSacrifice = (
 };
 
 export const getMaterialDifference = (fen: string): number => {
-  const game = new Chess(fen);
-  const board = game.board().flat();
+  const placement = fen.split(" ")[0];
+  let diff = 0;
 
-  return board.reduce((acc, square) => {
-    if (!square) return acc;
-    const piece = square.type;
-
-    if (square.color === "w") {
-      return acc + getPieceValue(piece);
+  for (let i = 0; i < placement.length; i++) {
+    const c = placement[i];
+    switch (c) {
+      case "P":
+        diff += 1;
+        break;
+      case "N":
+      case "B":
+        diff += 3;
+        break;
+      case "R":
+        diff += 5;
+        break;
+      case "Q":
+        diff += 9;
+        break;
+      case "p":
+        diff -= 1;
+        break;
+      case "n":
+      case "b":
+        diff -= 3;
+        break;
+      case "r":
+        diff -= 5;
+        break;
+      case "q":
+        diff -= 9;
+        break;
     }
-
-    return acc - getPieceValue(piece);
-  }, 0);
-};
-
-const getPieceValue = (piece: PieceSymbol): number => {
-  switch (piece) {
-    case "p":
-      return 1;
-    case "n":
-      return 3;
-    case "b":
-      return 3;
-    case "r":
-      return 5;
-    case "q":
-      return 9;
-    default:
-      return 0;
   }
+
+  return diff;
 };
 
 export const isCheck = (fen: string): boolean => {

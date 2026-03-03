@@ -6,6 +6,7 @@ import {
   gameAtom,
   showBestMoveArrowAtom,
   showPlayerMoveIconAtom,
+  boardAnimationDurationAtom,
 } from "../states";
 import { useMemo } from "react";
 import { useScreenSize } from "@/hooks/useScreenSize";
@@ -44,6 +45,7 @@ export default function BoardContainer() {
       showBestMoveArrow={showBestMoveArrow}
       showPlayerMoveIconAtom={showPlayerMoveIconAtom}
       showEvaluationBar={true}
+      animationDurationAtom={boardAnimationDurationAtom}
     />
   );
 }

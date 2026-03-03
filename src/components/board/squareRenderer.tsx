@@ -1,74 +1,135 @@
-import { CurrentPosition } from "@/types/eval";
 import { MoveClassification } from "@/types/enums";
-import { PrimitiveAtom, atom, useAtomValue } from "jotai";
+import { atom, useAtomValue } from "jotai";
 import Image from "next/image";
-import { CSSProperties, forwardRef, useMemo } from "react";
-import {
-  CustomSquareProps,
-  Square,
-} from "react-chessboard/dist/chessboard/types";
+import { CSSProperties, forwardRef, memo, useMemo, useContext } from "react";
+import { CustomSquareProps } from "react-chessboard/dist/chessboard/types";
 import { CLASSIFICATION_COLORS } from "@/constants";
-import { boardHueAtom } from "./states";
+import { BoardStateContext } from "./index";
 
-export interface Props {
-  currentPositionAtom: PrimitiveAtom<CurrentPosition>;
-  clickedSquaresAtom: PrimitiveAtom<Square[]>;
-  playableSquaresAtom: PrimitiveAtom<Square[]>;
-  showPlayerMoveIconAtom?: PrimitiveAtom<boolean>;
-  boardSize: number;
-}
-
-export function getSquareRenderer({
-  currentPositionAtom,
-  clickedSquaresAtom,
-  playableSquaresAtom,
-  showPlayerMoveIconAtom = atom(false),
-  boardSize,
-}: Props) {
-  const squareRenderer = forwardRef<HTMLDivElement, CustomSquareProps>(
-    (props, ref) => {
+export function getSquareRenderer() {
+  const SquareRendererComponent = memo(
+    forwardRef<HTMLDivElement, CustomSquareProps>((props, ref) => {
       const { children, square, style } = props;
-      const showPlayerMoveIcon = useAtomValue(showPlayerMoveIconAtom);
-      const position = useAtomValue(currentPositionAtom);
-      const clickedSquares = useAtomValue(clickedSquaresAtom);
-      const playableSquares = useAtomValue(playableSquaresAtom);
-      const boardHue = useAtomValue(boardHueAtom);
+      const { backgroundColor, ...containerStyle } = (style ||
+        {}) as React.CSSProperties;
 
-      const fromSquare = position.lastMove?.from;
-      const toSquare = position.lastMove?.to;
-      const moveClassification = position?.eval?.moveClassification;
+      const {
+        boardHue,
+        currentPositionAtom,
+        clickedSquaresAtom,
+        playableSquaresAtom,
+        captureSquaresAtom,
+        showPlayerMoveIconAtom,
+        moveClickFromAtom,
+        boardSize,
+      } = useContext(BoardStateContext);
+
+      // Derived stable subscriptions to prevent O(N) re-render cycles
+      const isPlayable = useAtomValue(
+        useMemo(
+          () => atom((get) => get(playableSquaresAtom).includes(square)),
+          [playableSquaresAtom, square]
+        )
+      );
+
+      const isCapture = useAtomValue(
+        useMemo(
+          () => atom((get) => get(captureSquaresAtom).includes(square)),
+          [captureSquaresAtom, square]
+        )
+      );
+
+      const clickedSquare = useAtomValue(
+        useMemo(
+          () =>
+            atom((get) =>
+              get(clickedSquaresAtom).find((s) => s.square === square)
+            ),
+          [clickedSquaresAtom, square]
+        )
+      );
+
+      const isMoveClickFrom = useAtomValue(
+        useMemo(
+          () => atom((get) => get(moveClickFromAtom) === square),
+          [moveClickFromAtom, square]
+        )
+      );
+
+      const classification = useAtomValue(
+        useMemo(
+          () =>
+            atom((get) => {
+              const pos = get(currentPositionAtom);
+              const isLastMove =
+                pos.lastMove?.from === square || pos.lastMove?.to === square;
+              return isLastMove ? pos.eval?.moveClassification || null : null;
+            }),
+          [currentPositionAtom, square]
+        )
+      );
+
+      const isLastMoveTo = useAtomValue(
+        useMemo(
+          () => atom((get) => get(currentPositionAtom).lastMove?.to === square),
+          [currentPositionAtom, square]
+        )
+      );
+
+      const showPlayerMoveIcon = useAtomValue(showPlayerMoveIconAtom);
 
       const highlightSquareStyle: CSSProperties | undefined = useMemo(
         () =>
-          clickedSquares.includes(square)
-            ? rightClickSquareStyle
-            : fromSquare === square || toSquare === square
-              ? previousMoveSquareStyle(moveClassification)
-              : undefined,
-        [clickedSquares, square, fromSquare, toSquare, moveClassification]
+          isMoveClickFrom
+            ? activeSquareStyle
+            : clickedSquare
+              ? rightClickSquareStyle(clickedSquare.color)
+              : classification !== null
+                ? previousMoveSquareStyle(classification)
+                : undefined,
+        [clickedSquare, isMoveClickFrom, classification]
       );
 
       const playableSquareStyle: CSSProperties | undefined = useMemo(
         () =>
-          playableSquares.includes(square) ? playableSquareStyles : undefined,
-        [playableSquares, square]
+          isPlayable
+            ? isCapture
+              ? captureRingStyle
+              : playableSquareStyles
+            : undefined,
+        [isPlayable, isCapture]
       );
+
+      const showIcon = classification && showPlayerMoveIcon && isLastMoveTo;
 
       return (
         <div
           ref={ref}
           style={{
-            ...style,
+            ...containerStyle,
             position: "relative",
-            filter: boardHue ? `hue-rotate(-${boardHue}deg)` : undefined,
+            overflow: "visible",
           }}
         >
-          {children}
+          {backgroundColor && (
+            <div
+              style={{
+                position: "absolute",
+                top: "-0.5px",
+                bottom: "-0.5px",
+                left: "-0.5px",
+                right: "-0.5px",
+                backgroundColor,
+                zIndex: -1,
+              }}
+            />
+          )}
           {highlightSquareStyle && <div style={highlightSquareStyle} />}
           {playableSquareStyle && <div style={playableSquareStyle} />}
-          {moveClassification && showPlayerMoveIcon && square === toSquare && (
+          {children}
+          {showIcon && (
             <Image
-              src={`/icons/${moveClassification}.png`}
+              src={`/icons/${classification}.png`}
               alt="move-icon"
               width={Math.min(40, boardSize * 0.06)}
               height={Math.min(40, boardSize * 0.06)}
@@ -77,25 +138,47 @@ export function getSquareRenderer({
                 top: Math.max(-13.5, boardSize * -0.03) + "px",
                 right: Math.max(-13.5, boardSize * -0.03) + "px",
                 zIndex: 100,
+                imageRendering: "auto",
+                filter: boardHue ? `hue-rotate(-${boardHue}deg)` : undefined,
+                transform: "translateZ(40px)",
+                pointerEvents: "none",
               }}
             />
           )}
         </div>
       );
+    }),
+    (prev, next) => {
+      // aggressive layout-shift prevention cache
+      if (prev.square !== next.square) return false;
+      if (prev.children !== next.children) return false;
+      return true;
     }
   );
 
-  squareRenderer.displayName = "SquareRenderer";
+  SquareRendererComponent.displayName = "SquareRenderer";
 
-  return squareRenderer;
+  return SquareRendererComponent;
 }
 
-const rightClickSquareStyle: CSSProperties = {
+const rightClickSquareStyle = (color?: string): CSSProperties => ({
   position: "absolute",
   width: "100%",
   height: "100%",
-  backgroundColor: "#eb6150",
+  backgroundColor: color || "#eb6150",
   opacity: "0.8",
+  transform: "translateZ(1px)",
+  pointerEvents: "none",
+});
+
+const activeSquareStyle: CSSProperties = {
+  position: "absolute",
+  width: "100%",
+  height: "100%",
+  backgroundColor: "#fad541",
+  opacity: 0.5,
+  transform: "translateZ(1px)",
+  pointerEvents: "none",
 };
 
 const playableSquareStyles: CSSProperties = {
@@ -107,16 +190,33 @@ const playableSquareStyles: CSSProperties = {
   backgroundClip: "content-box",
   borderRadius: "50%",
   boxSizing: "border-box",
+  transform: "translateZ(1px)",
+  pointerEvents: "none",
+};
+
+const captureRingStyle: CSSProperties = {
+  position: "absolute",
+  width: "100%",
+  height: "100%",
+  borderRadius: "50%",
+  boxSizing: "border-box",
+  background:
+    "radial-gradient(transparent 60%, rgba(0,0,0,.14) 60%, rgba(0,0,0,.14) 100%)",
+  transform: "translateZ(1px)",
+  pointerEvents: "none",
 };
 
 const previousMoveSquareStyle = (
-  moveClassification?: MoveClassification
+  moveClassification?: MoveClassification | null
 ): CSSProperties => ({
   position: "absolute",
   width: "100%",
   height: "100%",
-  backgroundColor: moveClassification
-    ? CLASSIFICATION_COLORS[moveClassification]
-    : "#fad541",
+  backgroundColor:
+    moveClassification && moveClassification !== MoveClassification.Opening
+      ? CLASSIFICATION_COLORS[moveClassification]
+      : "#fad541",
   opacity: 0.5,
+  transform: "translateZ(1px)",
+  pointerEvents: "none",
 });

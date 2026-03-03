@@ -144,7 +144,20 @@ export class UciEngine {
   }
 
   public async stopAllCurrentJobs(): Promise<void> {
+    // Prevent unhandled promise rejections by cleanly resolving abandoned queue jobs
+    const abandonedJobs = [...this.workerQueue];
     this.workerQueue = [];
+
+    for (const job of abandonedJobs) {
+      job.resolve([]); // Yield empty string array to fulfill the pending Promise safely
+    }
+
+    // Unbind any active React callback listeners immediately so in-flight engine updates
+    // do not trigger "Maximum update depth exceeded" during the stop pipeline.
+    for (const worker of this.workers) {
+      worker.listen = () => null;
+    }
+
     await this.sendCommandsToEachWorker(["stop", "isready"], "readyok");
 
     for (const worker of this.workers) {
@@ -369,13 +382,19 @@ export class UciEngine {
     await this.stopAllCurrentJobs();
     await this.setMultiPv(multiPv);
 
+    let lastUpdate = 0;
+    const THROTTLE_MS = 60; // Limit UI updates to ~16 updates per second for maximum fluidity and zero lag
+
     const onNewMessage = (messages: string[]) => {
       if (!setPartialEval) return;
+
+      const now = performance.now();
+      if (now - lastUpdate < THROTTLE_MS) return;
+      lastUpdate = now;
+
       const parsedResults = parseEvaluationResults(messages, fen);
       setPartialEval(parsedResults);
     };
-
-    console.log(`Evaluating position: ${fen}`);
 
     const lichessEval = await lichessEvalPromise;
     if (
@@ -404,8 +423,6 @@ export class UciEngine {
 
     await this.stopAllCurrentJobs();
     await this.setElo(elo);
-
-    console.log(`Evaluating position: ${fen}`);
 
     const results = await this.sendCommands(
       [`position fen ${fen}`, `go depth ${depth}`],

@@ -1,7 +1,7 @@
 import { getCapturedPieces, getMaterialDifference } from "@/lib/chess";
 import { Color } from "@/types/enums";
 import { Box, Grid2 as Grid, Stack, Typography } from "@mui/material";
-import { ReactElement, useMemo } from "react";
+import { ReactElement, useMemo, memo } from "react";
 
 export interface Props {
   fen: string;
@@ -10,7 +10,7 @@ export interface Props {
 
 const PIECE_SCALE = 0.55;
 
-export default function CapturedPieces({ fen, color }: Props) {
+const CapturedPieces = memo(function CapturedPieces({ fen, color }: Props) {
   const piecesComponents = useMemo(() => {
     const capturedPieces = getCapturedPieces(fen, color);
     return capturedPieces.map(({ piece, count }) =>
@@ -46,7 +46,7 @@ export default function CapturedPieces({ fen, color }: Props) {
       )}
     </Grid>
   );
-}
+});
 
 const getCapturedPiecesComponents = (
   pieceSymbol: string,
@@ -74,3 +74,5 @@ const getCapturedPiecesComponents = (
     </Stack>
   );
 };
+
+export default CapturedPieces;

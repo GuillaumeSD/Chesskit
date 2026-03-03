@@ -4,7 +4,7 @@
   "private": true,
   "license": "GPL-3.0-only",
   "scripts": {
-    "dev": "next dev --turbo",
+    "dev": "SENTRY_SUPPRESS_TURBOPACK_WARNING=1 next dev --turbo",
     "build": "next build",
     "start": "next start",
     "lint": "next lint && tsc --noEmit",

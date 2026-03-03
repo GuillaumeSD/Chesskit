@@ -85,12 +85,17 @@ const fetchLichessEval = async (
   try {
     const res = await fetch(
       `https://lichess.org/api/cloud-eval?fen=${fen}&multiPv=${multiPv}`,
-      { method: "GET", signal: AbortSignal.timeout(200) }
+      { method: "GET", signal: AbortSignal.timeout(1200) } // Increased buffer for international latency
     );
 
     return res.json();
   } catch (error) {
-    console.error(error);
+    // We intentionally silence TimeoutError and DOMException logs here.
+    // Failing over to the local WebAssembly engine is a routine, intended behavior
+    // and does not need to flood the user's console visually.
+    if (!(error instanceof Error && error.name === "TimeoutError")) {
+      console.error("Lichess fetch error:", error);
+    }
 
     return { error: LichessError.NotFound };
   }

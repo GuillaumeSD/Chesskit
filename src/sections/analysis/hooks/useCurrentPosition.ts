@@ -27,6 +27,7 @@ export const useCurrentPosition = (engine: UciEngine | null) => {
   useEffect(() => {
     const boardHistory = board.history({ verbose: true });
     const position: CurrentPosition = {
+      fen: board.fen(),
       lastMove: boardHistory.at(-1),
     };
 

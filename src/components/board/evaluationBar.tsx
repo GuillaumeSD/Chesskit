@@ -1,6 +1,6 @@
 import { Box, Grid2 as Grid, Typography } from "@mui/material";
 import { PrimitiveAtom, atom, useAtomValue } from "jotai";
-import { useEffect, useState } from "react";
+import { useEffect, useState, memo } from "react";
 import { getEvaluationBarValue } from "@/lib/chess";
 import { Color } from "@/types/enums";
 import { CurrentPosition } from "@/types/eval";
@@ -11,7 +11,7 @@ interface Props {
   currentPositionAtom?: PrimitiveAtom<CurrentPosition>;
 }
 
-export default function EvaluationBar({
+const EvaluationBar = memo(function EvaluationBar({
   height,
   boardOrientation,
   currentPositionAtom = atom({}),
@@ -107,4 +107,6 @@ export default function EvaluationBar({
       </Box>
     </Grid>
   );
-}
+});
+
+export default EvaluationBar;

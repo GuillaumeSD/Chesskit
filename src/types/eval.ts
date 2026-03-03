@@ -48,6 +48,7 @@ export interface EvaluatePositionWithUpdateParams {
 }
 
 export interface CurrentPosition {
+  fen?: string;
   lastMove?: Move;
   eval?: PositionEval;
   lastEval?: PositionEval;
