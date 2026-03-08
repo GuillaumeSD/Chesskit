@@ -1,5 +1,5 @@
 import Slider from "@/components/slider";
-import { EngineName } from "@/types/enums";
+import { EngineName, SoundTheme } from "@/types/enums";
 import {
   MenuItem,
   Select,
@@ -26,7 +26,7 @@ import ArrowOptions from "./arrowOptions";
 import { useAtomLocalStorage } from "@/hooks/useAtomLocalStorage";
 import { useEffect } from "react";
 import { isEngineSupported } from "@/lib/engine/shared";
-import { Stockfish16_1 } from "@/lib/engine/stockfish16_1";
+import { Stockfish17 } from "@/lib/engine/stockfish17";
 import { useAtom } from "jotai";
 import { boardHueAtom, pieceSetAtom } from "@/components/board/states";
 import Image from "next/image";
@@ -37,6 +37,7 @@ import {
   STRONGEST_ENGINE,
 } from "@/constants";
 import { getRecommendedWorkersNb } from "@/lib/engine/worker";
+import { soundThemeAtom } from "../play/states";
 
 interface Props {
   open: boolean;
@@ -63,10 +64,15 @@ export default function EngineSettingsDialog({ open, onClose }: Props) {
   const theme = useTheme();
   const isDarkMode = theme.palette.mode === "dark";
 
+  const [soundTheme, setSoundTheme] = useAtomLocalStorage(
+    "sound-theme",
+    soundThemeAtom
+  );
+
   useEffect(() => {
     if (!isEngineSupported(engineName)) {
-      if (Stockfish16_1.isSupported()) {
-        setEngineName(EngineName.Stockfish16_1Lite);
+      if (Stockfish17.isSupported()) {
+        setEngineName(EngineName.Stockfish17Lite);
       } else {
         setEngineName(EngineName.Stockfish11);
       }
@@ -198,6 +204,25 @@ export default function EngineSettingsDialog({ open, onClose }: Props) {
                       />
                       {name}
                     </Box>
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+
+            <FormControl variant="outlined">
+              <InputLabel id="sound-theme-select-label">Sound Theme</InputLabel>
+              <Select
+                labelId="sound-theme-select-label"
+                id="sound-theme-select"
+                displayEmpty
+                input={<OutlinedInput label="Sound Theme" />}
+                value={soundTheme}
+                onChange={(e) => setSoundTheme(e.target.value as SoundTheme)}
+                sx={{ width: 280, maxWidth: "100%" }}
+              >
+                {Object.values(SoundTheme).map((theme) => (
+                  <MenuItem key={theme} value={theme}>
+                    {theme.charAt(0).toUpperCase() + theme.slice(1)}
                   </MenuItem>
                 ))}
               </Select>

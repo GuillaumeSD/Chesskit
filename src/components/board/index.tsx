@@ -52,7 +52,7 @@ export default function Board({
   const boardRef = useRef<HTMLDivElement>(null);
   const game = useAtomValue(gameAtom);
   const { playMove } = useChessActions(gameAtom);
-  const clickedSquaresAtom = useMemo(() => atom<Square[]>([]), []);
+  const clickedSquaresAtom = useMemo(() => atom<Record<string, string>>({}), []);
   const setClickedSquares = useSetAtom(clickedSquaresAtom);
   const playableSquaresAtom = useMemo(() => atom<Square[]>([]), []);
   const setPlayableSquares = useSetAtom(playableSquaresAtom);
@@ -62,11 +62,36 @@ export default function Board({
   const [moveClickTo, setMoveClickTo] = useState<Square | null>(null);
   const pieceSet = useAtomValue(pieceSetAtom);
   const boardHue = useAtomValue(boardHueAtom);
+  const [arrowColor, setArrowColor] = useState("#15781B");
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.shiftKey) setArrowColor("#882020");
+      else if (e.altKey) setArrowColor("#003088");
+      else if (e.ctrlKey || e.metaKey) setArrowColor("#e68f00");
+      else setArrowColor("#15781B");
+    };
+
+    const handleKeyUp = (e: KeyboardEvent) => {
+      if (e.shiftKey) setArrowColor("#882020");
+      else if (e.altKey) setArrowColor("#003088");
+      else if (e.ctrlKey || e.metaKey) setArrowColor("#e68f00");
+      else setArrowColor("#15781B");
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    window.addEventListener("keyup", handleKeyUp);
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener("keyup", handleKeyUp);
+    };
+  }, []);
 
   const gameFen = game.fen();
 
   useEffect(() => {
-    setClickedSquares([]);
+    setClickedSquares({});
   }, [gameFen, setClickedSquares]);
 
   const isPiecePlayable = useCallback(
@@ -110,7 +135,7 @@ export default function Board({
 
   const handleSquareLeftClick = useCallback(
     (square: Square, piece?: string) => {
-      setClickedSquares([]);
+      setClickedSquares({});
 
       if (!moveClickFrom) {
         if (piece && !isPiecePlayable({ piece })) return;
@@ -156,13 +181,20 @@ export default function Board({
 
   const handleSquareRightClick = useCallback(
     (square: Square) => {
-      setClickedSquares((prev) =>
-        prev.includes(square)
-          ? prev.filter((s) => s !== square)
-          : [...prev, square]
-      );
+      setClickedSquares((prev) => {
+        const newClickedSquares = { ...prev };
+        let color = "#15781B";
+        color = arrowColor;
+
+        if (newClickedSquares[square] === color) {
+          delete newClickedSquares[square];
+        } else {
+          newClickedSquares[square] = color;
+        }
+        return newClickedSquares;
+      });
     },
-    [setClickedSquares]
+    [setClickedSquares, arrowColor]
   );
 
   const handlePieceDragBegin = useCallback(
@@ -329,6 +361,7 @@ export default function Board({
               boardOrientation === Color.White ? "white" : "black"
             }
             customBoardStyle={customBoardStyle}
+            customArrowColor={arrowColor}
             customArrows={customArrows}
             isDraggablePiece={isPiecePlayable}
             customSquare={SquareRenderer}

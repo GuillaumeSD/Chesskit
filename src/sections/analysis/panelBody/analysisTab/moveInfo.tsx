@@ -51,66 +51,77 @@ export default function MoveInfo() {
     moveClassification !== MoveClassification.Perfect;
 
   return (
-    <Stack
-      direction="row"
-      alignItems="center"
-      justifyContent="center"
-      columnGap={4}
-      marginTop={0.5}
-      flexWrap="wrap"
-    >
-      {moveClassification && (
-        <Stack direction="row" alignItems="center" spacing={1}>
-          <Image
-            src={`/icons/${moveClassification}.png`}
-            alt="move-icon"
-            width={16}
-            height={16}
-            style={{
-              maxWidth: "3.5vw",
-              maxHeight: "3.5vw",
-            }}
-          />
+    <Stack direction="column" minHeight="60px" justifyContent="center" width="100%">
+      <Stack
+        direction="row"
+        alignItems="center"
+        justifyContent="center"
+        columnGap={4}
+        flexWrap="wrap"
+      >
+        {moveClassification && (
+          <Stack direction="row" alignItems="center" spacing={1}>
+            <Image
+              src={`/icons/${moveClassification}.png`}
+              alt="move-icon"
+              width={16}
+              height={16}
+              style={{
+                maxWidth: "3.5vw",
+                maxHeight: "3.5vw",
+              }}
+            />
 
-          <PrettyMoveSan
-            typographyProps={{
-              fontSize: "0.9rem",
-            }}
-            san={position.lastMove?.san ?? ""}
-            color={position.lastMove?.color ?? "w"}
-            additionalText={
-              " is " + moveClassificationLabels[moveClassification]
-            }
-          />
-        </Stack>
-      )}
+            <PrettyMoveSan
+              typographyProps={{
+                fontSize: "0.9rem",
+              }}
+              san={position.lastMove?.san ?? ""}
+              color={position.lastMove?.color ?? "w"}
+              additionalText={
+                " is " + moveClassificationLabels[moveClassification]
+              }
+            />
+          </Stack>
+        )}
 
-      {showBestMoveLabel && (
-        <Stack direction="row" alignItems="center" spacing={1}>
-          <Image
-            src={"/icons/best.png"}
-            alt="move-icon"
-            width={16}
-            height={16}
-            style={{
-              maxWidth: "3.5vw",
-              maxHeight: "3.5vw",
-            }}
-          />
-          <PrettyMoveSan
-            typographyProps={{
-              fontSize: "0.9rem",
-            }}
-            san={bestMoveSan}
-            color={position.lastMove?.color ?? "w"}
-            additionalText=" was the best move"
-          />
-        </Stack>
-      )}
+        {showBestMoveLabel && (
+          <Stack direction="row" alignItems="center" spacing={1}>
+            <Image
+              src={"/icons/best.png"}
+              alt="move-icon"
+              width={16}
+              height={16}
+              style={{
+                maxWidth: "3.5vw",
+                maxHeight: "3.5vw",
+              }}
+            />
+            <PrettyMoveSan
+              typographyProps={{
+                fontSize: "0.9rem",
+              }}
+              san={bestMoveSan}
+              color={position.lastMove?.color ?? "w"}
+              additionalText=" was the best move"
+            />
+          </Stack>
+        )}
+      </Stack>
+
+      <Typography 
+        fontSize="0.8rem" 
+        color="text.secondary" 
+        width="100%" 
+        textAlign="center" 
+        mt={0.5} 
+        minHeight="1.2rem"
+      >
+        {position.eval?.explanation || ""}
+      </Typography>
     </Stack>
   );
 }
-
 const moveClassificationLabels: Record<MoveClassification, string> = {
   [MoveClassification.Opening]: "an opening move",
   [MoveClassification.Forced]: "forced",

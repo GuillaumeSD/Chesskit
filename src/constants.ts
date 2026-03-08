@@ -33,26 +33,7 @@ export const ENGINE_LABELS: Record<
     small: "Stockfish 17 Lite",
     sizeMb: 6,
   },
-  [EngineName.Stockfish16_1]: {
-    full: "Stockfish 16.1 (64MB)",
-    small: "Stockfish 16.1",
-    sizeMb: 64,
-  },
-  [EngineName.Stockfish16_1Lite]: {
-    full: "Stockfish 16.1 Lite (6MB)",
-    small: "Stockfish 16.1 Lite",
-    sizeMb: 6,
-  },
-  [EngineName.Stockfish16NNUE]: {
-    full: "Stockfish 16 (40MB)",
-    small: "Stockfish 16",
-    sizeMb: 40,
-  },
-  [EngineName.Stockfish16]: {
-    full: "Stockfish 16 Lite (HCE)",
-    small: "Stockfish 16 Lite",
-    sizeMb: 2,
-  },
+
   [EngineName.Stockfish11]: {
     full: "Stockfish 11 (HCE)",
     small: "Stockfish 11",

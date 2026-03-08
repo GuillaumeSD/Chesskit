@@ -6,6 +6,7 @@ const nextConfig = (phase: string): NextConfig => ({
   output: phase === PHASE_PRODUCTION_BUILD ? "export" : undefined,
   trailingSlash: false,
   reactStrictMode: true,
+  turbopack: {},
   images: {
     unoptimized: true,
   },

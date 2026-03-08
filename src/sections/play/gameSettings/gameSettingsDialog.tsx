@@ -1,5 +1,5 @@
 import Slider from "@/components/slider";
-import { Color, EngineName } from "@/types/enums";
+import { Color, EngineName, SoundTheme } from "@/types/enums";
 import {
   MenuItem,
   Select,
@@ -26,12 +26,13 @@ import {
   isGameInProgressAtom,
   gameAtom,
   enginePlayNameAtom,
+  soundThemeAtom,
 } from "../states";
 import { useChessActions } from "@/hooks/useChessActions";
 import { logAnalyticsEvent } from "@/lib/firebase";
 import { useEffect, useState } from "react";
 import { isEngineSupported } from "@/lib/engine/shared";
-import { Stockfish16_1 } from "@/lib/engine/stockfish16_1";
+import { Stockfish17 } from "@/lib/engine/stockfish17";
 import { DEFAULT_ENGINE, ENGINE_LABELS, STRONGEST_ENGINE } from "@/constants";
 import { getGameFromPgn } from "@/lib/chess";
 
@@ -49,6 +50,11 @@ export default function GameSettingsDialog({ open, onClose }: Props) {
     "engine-play-name",
     enginePlayNameAtom
   );
+  const [soundTheme, setSoundTheme] = useAtomLocalStorage(
+    "sound-theme",
+    soundThemeAtom
+  );
+
   const [playerColor, setPlayerColor] = useAtom(playerColorAtom);
   const setIsGameInProgress = useSetAtom(isGameInProgressAtom);
   const { reset: resetGame } = useChessActions(gameAtom);
@@ -103,8 +109,8 @@ export default function GameSettingsDialog({ open, onClose }: Props) {
 
   useEffect(() => {
     if (!isEngineSupported(engineName)) {
-      if (Stockfish16_1.isSupported()) {
-        setEngineName(EngineName.Stockfish16_1Lite);
+      if (Stockfish17.isSupported()) {
+        setEngineName(EngineName.Stockfish17Lite);
       } else {
         setEngineName(EngineName.Stockfish11);
       }
@@ -211,6 +217,27 @@ export default function GameSettingsDialog({ open, onClose }: Props) {
               </Typography>
             </FormControl>
           )}
+
+          <Grid container justifyContent="center" size={12}>
+            <FormControl variant="outlined">
+              <InputLabel id="sound-theme-select-label">Sound Theme</InputLabel>
+              <Select
+                labelId="sound-theme-select-label"
+                id="sound-theme-select"
+                displayEmpty
+                input={<OutlinedInput label="Sound Theme" />}
+                value={soundTheme}
+                onChange={(e) => setSoundTheme(e.target.value as SoundTheme)}
+                sx={{ width: 280, maxWidth: "100%" }}
+              >
+                {Object.values(SoundTheme).map((theme) => (
+                  <MenuItem key={theme} value={theme}>
+                    {theme.charAt(0).toUpperCase() + theme.slice(1)}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Grid>
         </Grid>
       </DialogContent>
       <DialogActions sx={{ m: 2 }}>

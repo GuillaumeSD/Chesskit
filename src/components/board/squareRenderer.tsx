@@ -12,7 +12,7 @@ import { boardHueAtom } from "./states";
 
 export interface Props {
   currentPositionAtom: PrimitiveAtom<CurrentPosition>;
-  clickedSquaresAtom: PrimitiveAtom<Square[]>;
+  clickedSquaresAtom: PrimitiveAtom<Record<string, string>>;
   playableSquaresAtom: PrimitiveAtom<Square[]>;
   showPlayerMoveIconAtom?: PrimitiveAtom<boolean>;
   boardSize: number;
@@ -40,8 +40,8 @@ export function getSquareRenderer({
 
       const highlightSquareStyle: CSSProperties | undefined = useMemo(
         () =>
-          clickedSquares.includes(square)
-            ? rightClickSquareStyle
+          clickedSquares[square]
+            ? rightClickSquareStyle(clickedSquares[square])
             : fromSquare === square || toSquare === square
               ? previousMoveSquareStyle(moveClassification)
               : undefined,
@@ -90,13 +90,13 @@ export function getSquareRenderer({
   return squareRenderer;
 }
 
-const rightClickSquareStyle: CSSProperties = {
+const rightClickSquareStyle = (color: string): CSSProperties => ({
   position: "absolute",
   width: "100%",
   height: "100%",
-  backgroundColor: "#eb6150",
+  backgroundColor: color,
   opacity: "0.8",
-};
+});
 
 const playableSquareStyles: CSSProperties = {
   position: "absolute",
