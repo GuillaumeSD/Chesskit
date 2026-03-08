@@ -61,7 +61,7 @@ export default function NavBar({ darkMode, switchDarkMode }: Props) {
 
           <Image
             src="/favicon-32x32.png"
-            alt="Chesskit logo"
+            alt="Freechess logo"
             width={32}
             height={32}
           />
@@ -76,7 +76,7 @@ export default function NavBar({ darkMode, switchDarkMode }: Props) {
                 fontSize: { xs: "1rem", sm: "1.25rem" },
               }}
             >
-              Chesskit
+              Freechess
             </Typography>
           </NavLink>
 
@@ -91,7 +91,7 @@ export default function NavBar({ darkMode, switchDarkMode }: Props) {
           </StyledIconButtonLink>
 
           <StyledIconButtonLink
-            href="https://github.com/GuillaumeSD/Chesskit"
+            href="https://github.com/Theprathamshah/Freechess"
             target="_blank"
             rel="noopener noreferrer"
             sx={{ ml: "min(0.6rem, 0.8vw)" }}

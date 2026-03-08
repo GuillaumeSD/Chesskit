@@ -1,26 +1,28 @@
 <div align="center">
-  <a href="https://github.com/GuillaumeSD/Chesskit">
-    <img width="120" height="120" src="https://github.com/GuillaumeSD/Chesskit/blob/main/public/android-chrome-192x192.png" alt="Logo">
+  <a href="https://github.com/Theprathamshah/Freechess">
+    <img width="120" height="120" src="https://github.com/Theprathamshah/Freechess/blob/main/public/android-chrome-192x192.png" alt="Logo">
   </a>
 
-<h3 align="center">Chesskit</h3>
+<h3 align="center">Freechess</h3>
+
   <p align="center">
-    The Ultimate Chess Web App
+    Enjoy your chess games for free.
     <br />
-    <a href="https://chesskit.org/" target="_blank" rel="noopener noreferrer"><strong>chesskit.org</strong></a>
+    <a href="https://freechess.org/" target="_blank" rel="noopener noreferrer"><strong>freechess.org</strong></a>
     <br />
-    <a href="https://discord.com/invite/Yr99abAcUr" target="_blank" rel="noopener noreferrer">Discord Server</a>
-    ·
+    <br />
     <a href="https://chesskit.notion.site/4cf7823836724432b71aa8932ba7d5bb" target="_blank" rel="noopener noreferrer">Features Backlog</a>
   </p>
 </div>
 <br />
 
-Chesskit is an open-source chess website to play, view, analyze and review your chess games for free on any device with Stockfish !
+## About The Project
 
-## Mission
+Freechess is an open-source chess website to play, view, analyze and review your chess games for free on any device with Stockfish !
 
-Chesskit aims to offer all the chess related features it can, while being free and open-source. It is designed to be easy to use, fast, and reliable.
+Play chess, evaluate the positions, analyze your games and save them securely on database, 100% free!
+
+Freechess aims to offer all the chess related features it can, while being free and open-source. It is designed to be easy to use, fast, and reliable.
 
 ## Features
 
@@ -31,13 +33,17 @@ Chesskit aims to offer all the chess related features it can, while being free a
 - Play against Stockfish at any elo
 - Store your games in your browser database
 
-<img src="https://github.com/GuillaumeSD/Chesskit/blob/main/assets/showcase.png" />
+<img src="https://github.com/Theprathamshah/Freechess/blob/main/assets/showcase.png" />
+
+### How to use?
+
+Go to [freechess.org](https://freechess.org) on any device and start playing !
 
 ## Stack
 
 Built with [Next.js](https://nextjs.org/docs), [React](https://react.dev/learn/describing-the-ui), [Material UI](https://mui.com/material-ui/getting-started/overview/), and [TypeScript](https://www.typescriptlang.org/docs/handbook/typescript-from-scratch.html).
 
-Deployed on AWS with [AWS CDK](https://docs.aws.amazon.com/cdk/v2/guide/home.html), see it live [here](https://chesskit.org).
+Deployed on AWS with [AWS CDK](https://docs.aws.amazon.com/cdk/v2/guide/home.html), see it live [here](https://freechess.org).
 
 ## Running the app in dev mode
 
@@ -98,12 +104,12 @@ npm run deploy
 
 ## License
 
-Chesskit is licensed under the GNU Affero General Public License 3. See [copying](COPYING.md) for
-details.
+Freechess is licensed under the GNU Affero General Public License 3. See [copying](COPYING.md) for
+full details.
 
-## Growing thanks to you ❤️
+---
 
-[![Stargazers over time](https://starchart.cc/GuillaumeSD/Chesskit.svg?variant=adaptive)](https://starchart.cc/GuillaumeSD/Chesskit)
+[![Stargazers over time](https://starchart.cc/Theprathamshah/Freechess.svg?variant=adaptive)](https://starchart.cc/Theprathamshah/Freechess)
 
 ## Self-hosting
 

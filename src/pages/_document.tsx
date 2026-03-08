@@ -28,13 +28,13 @@ export default function Document() {
         />
 
         {/* OG (Social networks) */}
-        <meta property="og:title" content="chesskit.org" />
+        <meta property="og:title" content="freechess.org" />
         <meta property="og:type" content="website" />
-        <meta property="og:site_name" content="chesskit.org" />
-        <meta property="og:url" content="https://chesskit.org/" />
+        <meta property="og:site_name" content="freechess.org" />
+        <meta property="og:url" content="https://freechess.org/" />
         <meta
           property="og:image"
-          content="https://chesskit.org/social-networks-1200x630.png"
+          content="https://freechess.org/social-networks-1200x630.png"
         />
         <meta
           property="og:description"
@@ -42,9 +42,9 @@ export default function Document() {
         />
 
         {/* Twitter */}
-        <meta name="twitter:title" content="chesskit.org" />
-        <meta name="twitter:domain" content="chesskit.org" />
-        <meta name="twitter:url" content="https://chesskit.org/" />
+        <meta name="twitter:title" content="freechess.org" />
+        <meta name="twitter:domain" content="freechess.org" />
+        <meta name="twitter:url" content="https://freechess.org/" />
         <meta
           name="twitter:description"
           content="Analyze your chess games for free on any device with Stockfish!"
@@ -52,7 +52,7 @@ export default function Document() {
         <meta name="twitter:card" content="summary_large_image" />
         <meta
           name="twitter:image"
-          content="https://chesskit.org/social-networks-1200x630.png"
+          content="https://freechess.org/social-networks-1200x630.png"
         />
       </Head>
       <body>
