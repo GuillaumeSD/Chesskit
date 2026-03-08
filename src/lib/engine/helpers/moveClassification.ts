@@ -6,6 +6,7 @@ import {
 import { MoveClassification } from "@/types/enums";
 import { openings } from "@/data/openings";
 import { getIsPieceSacrifice, isSimplePieceRecapture } from "@/lib/chess";
+import { generateMoveExplanation } from "./explanations";
 
 export const getMovesClassification = (
   rawPositions: PositionEval[],
@@ -68,6 +69,7 @@ export const getMovesClassification = (
         ...rawPosition,
         opening: currentOpening,
         moveClassification: MoveClassification.Splendid,
+        explanation: generateMoveExplanation(fens[index - 1], playedMove, MoveClassification.Splendid, prevPosition, rawPosition),
       };
     }
 
@@ -89,6 +91,7 @@ export const getMovesClassification = (
         ...rawPosition,
         opening: currentOpening,
         moveClassification: MoveClassification.Perfect,
+        explanation: generateMoveExplanation(fens[index - 1], playedMove, MoveClassification.Perfect, prevPosition, rawPosition),
       };
     }
 
@@ -97,6 +100,7 @@ export const getMovesClassification = (
         ...rawPosition,
         opening: currentOpening,
         moveClassification: MoveClassification.Best,
+        explanation: generateMoveExplanation(fens[index - 1], playedMove, MoveClassification.Best, prevPosition, rawPosition),
       };
     }
 
@@ -106,10 +110,19 @@ export const getMovesClassification = (
       isWhiteMove
     );
 
+    const explanation = generateMoveExplanation(
+      fens[index - 1],
+      playedMove,
+      moveClassification,
+      prevPosition,
+      rawPosition
+    );
+
     return {
       ...rawPosition,
       opening: currentOpening,
       moveClassification,
+      explanation,
     };
   });
 
