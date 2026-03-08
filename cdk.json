@@ -1,6 +1,6 @@
 {
   "app": "npx tsx cdk/app.ts",
-  "profile": "chesskit",
+  "profile": "freechess",
   "watch": {
     "include": ["**"],
     "exclude": [
