@@ -1,10 +1,13 @@
-import { Skeleton, Stack, Typography } from "@mui/material";
+import { Button, Skeleton, Stack, Typography } from "@mui/material";
+import VolumeUpIcon from "@mui/icons-material/VolumeUp";
+import StopIcon from "@mui/icons-material/Stop";
 import { useAtomValue } from "jotai";
 import { boardAtom, currentPositionAtom } from "../../states";
 import { useMemo } from "react";
 import { moveLineUciToSan } from "@/lib/chess";
 import { MoveClassification } from "@/types/enums";
 import Image from "next/image";
+import { useTTS } from "@/hooks/useTTS";
 import PrettyMoveSan from "@/components/prettyMoveSan";
 
 export default function MoveInfo() {
@@ -12,6 +15,8 @@ export default function MoveInfo() {
   const board = useAtomValue(boardAtom);
 
   const bestMove = position?.lastEval?.bestMove;
+  const explanationText = position.eval?.explanation || "";
+  const { speak, stop, isPlaying, isSupported } = useTTS(explanationText);
 
   const bestMoveSan = useMemo(() => {
     if (!bestMove) return undefined;
@@ -51,7 +56,7 @@ export default function MoveInfo() {
     moveClassification !== MoveClassification.Perfect;
 
   return (
-    <Stack direction="column" minHeight="60px" justifyContent="center" width="100%">
+    <Stack direction="column" minHeight="60px" justifyContent="center" width="100%" alignItems="center">
       <Stack
         direction="row"
         alignItems="center"
@@ -117,8 +122,21 @@ export default function MoveInfo() {
         mt={0.5} 
         minHeight="1.2rem"
       >
-        {position.eval?.explanation || ""}
+        {explanationText}
       </Typography>
+
+      {isSupported && explanationText && (
+        <Button
+          size="small"
+          onClick={isPlaying ? stop : speak}
+          startIcon={isPlaying ? <StopIcon /> : <VolumeUpIcon />}
+          sx={{ mt: 1, textTransform: "none", alignSelf: "center", borderRadius: "16px" }}
+          variant="outlined"
+          color="inherit"
+        >
+          {isPlaying ? "Stop Listening" : "Listen Explanation"}
+        </Button>
+      )}
     </Stack>
   );
 }
