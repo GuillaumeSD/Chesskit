@@ -14,6 +14,7 @@ import { Chess } from "chess.js";
 import { useRouter } from "next/router";
 import { GameEval } from "@/types/eval";
 import { fetchLichessGame } from "@/lib/lichess";
+import { decompressPgn } from "@/lib/shareGame";
 
 export default function LoadGame() {
   const router = useRouter();
@@ -41,7 +42,11 @@ export default function LoadGame() {
     [joinedGameHistory, resetBoard, setGamePgn, setEval, setBoardOrientation]
   );
 
-  const { lichessGameId, orientation: orientationParam } = router.query;
+  const {
+    lichessGameId,
+    orientation: orientationParam,
+    pgn: pgnParam,
+  } = router.query;
 
   useEffect(() => {
     const handleLichess = async (id: string) => {
@@ -58,8 +63,19 @@ export default function LoadGame() {
       resetAndSetGamePgn(gameFromUrl.pgn, orientation, gameFromUrl.eval);
     } else if (typeof lichessGameId === "string" && !!lichessGameId) {
       handleLichess(lichessGameId);
+    } else if (typeof pgnParam === "string" && !!pgnParam) {
+      const decompressed = decompressPgn(pgnParam);
+      if (decompressed) {
+        resetAndSetGamePgn(decompressed, orientationParam !== "black");
+      }
     }
-  }, [gameFromUrl, lichessGameId, orientationParam, resetAndSetGamePgn]);
+  }, [
+    gameFromUrl,
+    lichessGameId,
+    orientationParam,
+    pgnParam,
+    resetAndSetGamePgn,
+  ]);
 
   useEffect(() => {
     const eventHandler = (event: MessageEvent) => {

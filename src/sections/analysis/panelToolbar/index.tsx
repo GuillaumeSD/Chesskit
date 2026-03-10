@@ -7,6 +7,7 @@ import FlipBoardButton from "./flipBoardButton";
 import NextMoveButton from "./nextMoveButton";
 import GoToLastPositionButton from "./goToLastPositionButton";
 import SaveButton from "./saveButton";
+import ShareButton from "./shareButton";
 import { useEffect } from "react";
 
 export default function PanelToolBar() {
@@ -79,6 +80,8 @@ export default function PanelToolBar() {
           </IconButton>
         </Grid>
       </Tooltip>
+
+      <ShareButton />
 
       <SaveButton />
     </Grid>
