@@ -19,7 +19,7 @@ import EvaluationBar from "./evaluationBar";
 import { CLASSIFICATION_COLORS } from "@/constants";
 import { Player } from "@/types/game";
 import PlayerHeader from "./playerHeader";
-import { boardHueAtom, pieceSetAtom } from "./states";
+import { boardHueAtom, pieceSetAtom, boardSetAtom } from "./states";
 import tinycolor from "tinycolor2";
 
 export interface Props {
@@ -61,6 +61,7 @@ export default function Board({
   const [moveClickFrom, setMoveClickFrom] = useState<Square | null>(null);
   const [moveClickTo, setMoveClickTo] = useState<Square | null>(null);
   const pieceSet = useAtomValue(pieceSetAtom);
+  const boardSet = useAtomValue(boardSetAtom);
   const boardHue = useAtomValue(boardHueAtom);
 
   const gameFen = game.fen();
@@ -269,10 +270,15 @@ export default function Board({
   );
 
   const customBoardStyle = useMemo(() => {
-    const commonBoardStyle = {
+    const commonBoardStyle: React.CSSProperties = {
       borderRadius: "5px",
       boxShadow: "0 2px 10px rgba(0, 0, 0, 0.5)",
     };
+
+    if (boardSet !== "none") {
+      commonBoardStyle.backgroundImage = `url(/board/${boardSet}.png)`;
+      commonBoardStyle.backgroundSize = "cover";
+    }
 
     if (boardHue) {
       return {
@@ -282,7 +288,7 @@ export default function Board({
     }
 
     return commonBoardStyle;
-  }, [boardHue]);
+  }, [boardHue, boardSet]);
 
   return (
     <Grid
@@ -341,6 +347,10 @@ export default function Board({
             promotionToSquare={moveClickTo}
             animationDuration={200}
             customPieces={customPieces}
+            {...(boardSet !== "none" && {
+              customDarkSquareStyle: { backgroundColor: "transparent" },
+              customLightSquareStyle: { backgroundColor: "transparent" },
+            })}
           />
         </Grid>
 

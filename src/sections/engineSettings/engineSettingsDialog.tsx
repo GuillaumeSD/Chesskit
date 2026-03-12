@@ -28,12 +28,13 @@ import { useEffect } from "react";
 import { isEngineSupported } from "@/lib/engine/shared";
 import { Stockfish16_1 } from "@/lib/engine/stockfish16_1";
 import { useAtom } from "jotai";
-import { boardHueAtom, pieceSetAtom } from "@/components/board/states";
+import { boardHueAtom, pieceSetAtom, boardSetAtom } from "@/components/board/states";
 import Image from "next/image";
 import {
   DEFAULT_ENGINE,
   ENGINE_LABELS,
   PIECE_SETS,
+  BOARD_SETS,
   STRONGEST_ENGINE,
 } from "@/constants";
 import { getRecommendedWorkersNb } from "@/lib/engine/worker";
@@ -58,6 +59,7 @@ export default function EngineSettingsDialog({ open, onClose }: Props) {
   );
   const [boardHue, setBoardHue] = useAtom(boardHueAtom);
   const [pieceSet, setPieceSet] = useAtom(pieceSetAtom);
+  const [boardSet, setBoardSet] = useAtom(boardSetAtom);
   const [engineWorkersNb, setEngineWorkersNb] = useAtom(engineWorkersNbAtom);
 
   const theme = useTheme();
@@ -156,7 +158,7 @@ export default function EngineSettingsDialog({ open, onClose }: Props) {
           <Grid
             container
             justifyContent="center"
-            size={{ xs: 12, sm: 8, md: 9 }}
+            size={{ xs: 12, sm: 12, md: 4 }}
           >
             <Slider
               label="Board hue"
@@ -171,7 +173,45 @@ export default function EngineSettingsDialog({ open, onClose }: Props) {
             container
             justifyContent="center"
             alignItems="center"
-            size={{ xs: 12, sm: 4, md: 3 }}
+            size={{ xs: 12, sm: 6, md: 4 }}
+          >
+            <FormControl variant="outlined">
+              <InputLabel id="dialog-select-board-label">Board set</InputLabel>
+              <Select
+                labelId="dialog-select-board-label"
+                id="dialog-select-board"
+                displayEmpty
+                input={<OutlinedInput label="Board set" />}
+                value={boardSet}
+                onChange={(e) =>
+                  setBoardSet(e.target.value as (typeof BOARD_SETS)[number] | "none")
+                }
+                sx={{ width: 200, maxWidth: "100%" }}
+              >
+                <MenuItem value="none">None</MenuItem>
+                {BOARD_SETS.map((name) => (
+                  <MenuItem key={name} value={name}>
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                      <Image
+                        loading="lazy"
+                        src={`/board/${name}.png`}
+                        alt={`${name} board`}
+                        width={24}
+                        height={24}
+                      />
+                      {name}
+                    </Box>
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Grid>
+
+          <Grid
+            container
+            justifyContent="center"
+            alignItems="center"
+            size={{ xs: 12, sm: 6, md: 4 }}
           >
             <FormControl variant="outlined">
               <InputLabel id="dialog-select-label">Piece set</InputLabel>
