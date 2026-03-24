@@ -1,9 +1,9 @@
-# Copying Chesskit
+# Copying Freechess
 
 Any file in this project that does not state otherwise and is not listed as an
-exception below is part of chesskit.
+exception below is part of freechess.
 
-Chesskit is free software; you can redistribute and/or modify it under the terms
+Freechess is free software; you can redistribute and/or modify it under the terms
 of the GNU Affero General Public License as published by the Free Software
 Foundation; version 3 of the License.
 

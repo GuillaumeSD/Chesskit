@@ -1,5 +1,5 @@
 import Slider from "@/components/slider";
-import { EngineName } from "@/types/enums";
+import { EngineName, SoundTheme } from "@/types/enums";
 import {
   MenuItem,
   Select,
@@ -26,17 +26,19 @@ import ArrowOptions from "./arrowOptions";
 import { useAtomLocalStorage } from "@/hooks/useAtomLocalStorage";
 import { useEffect } from "react";
 import { isEngineSupported } from "@/lib/engine/shared";
-import { Stockfish16_1 } from "@/lib/engine/stockfish16_1";
+import { Stockfish17 } from "@/lib/engine/stockfish17";
 import { useAtom } from "jotai";
-import { boardHueAtom, pieceSetAtom } from "@/components/board/states";
+import { boardThemeAtom, pieceSetAtom } from "@/components/board/states";
 import Image from "next/image";
 import {
+  BOARD_THEMES,
   DEFAULT_ENGINE,
   ENGINE_LABELS,
   PIECE_SETS,
   STRONGEST_ENGINE,
 } from "@/constants";
 import { getRecommendedWorkersNb } from "@/lib/engine/worker";
+import { soundThemeAtom } from "../play/states";
 
 interface Props {
   open: boolean;
@@ -56,17 +58,22 @@ export default function EngineSettingsDialog({ open, onClose }: Props) {
     "engine-name",
     engineNameAtom
   );
-  const [boardHue, setBoardHue] = useAtom(boardHueAtom);
+  const [boardTheme, setBoardTheme] = useAtom(boardThemeAtom);
   const [pieceSet, setPieceSet] = useAtom(pieceSetAtom);
   const [engineWorkersNb, setEngineWorkersNb] = useAtom(engineWorkersNbAtom);
 
   const theme = useTheme();
   const isDarkMode = theme.palette.mode === "dark";
 
+  const [soundTheme, setSoundTheme] = useAtomLocalStorage(
+    "sound-theme",
+    soundThemeAtom
+  );
+
   useEffect(() => {
     if (!isEngineSupported(engineName)) {
-      if (Stockfish16_1.isSupported()) {
-        setEngineName(EngineName.Stockfish16_1Lite);
+      if (Stockfish17.isSupported()) {
+        setEngineName(EngineName.Stockfish17Lite);
       } else {
         setEngineName(EngineName.Stockfish11);
       }
@@ -156,15 +163,61 @@ export default function EngineSettingsDialog({ open, onClose }: Props) {
           <Grid
             container
             justifyContent="center"
+            alignItems="center"
             size={{ xs: 12, sm: 8, md: 9 }}
           >
-            <Slider
-              label="Board hue"
-              value={boardHue}
-              setValue={setBoardHue}
-              min={0}
-              max={360}
-            />
+            <FormControl variant="outlined">
+              <InputLabel id="board-theme-select-label">
+                Board Theme
+              </InputLabel>
+              <Select
+                labelId="board-theme-select-label"
+                id="board-theme-select"
+                displayEmpty
+                input={<OutlinedInput label="Board Theme" />}
+                value={boardTheme}
+                onChange={(e) =>
+                  setBoardTheme(
+                    e.target.value as (typeof BOARD_THEMES)[number]["name"]
+                  )
+                }
+                sx={{ width: 280, maxWidth: "100%" }}
+              >
+                {BOARD_THEMES.map((theme) => (
+                  <MenuItem key={theme.name} value={theme.name}>
+                    <Box
+                      sx={{ display: "flex", alignItems: "center", gap: 1 }}
+                    >
+                      <Box
+                        sx={{
+                          display: "flex",
+                          borderRadius: "3px",
+                          overflow: "hidden",
+                          border: "1px solid",
+                          borderColor: "divider",
+                        }}
+                      >
+                        <Box
+                          sx={{
+                            width: 14,
+                            height: 24,
+                            backgroundColor: theme.lightSquare,
+                          }}
+                        />
+                        <Box
+                          sx={{
+                            width: 14,
+                            height: 24,
+                            backgroundColor: theme.darkSquare,
+                          }}
+                        />
+                      </Box>
+                      {theme.name}
+                    </Box>
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
           </Grid>
 
           <Grid
@@ -198,6 +251,25 @@ export default function EngineSettingsDialog({ open, onClose }: Props) {
                       />
                       {name}
                     </Box>
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+
+            <FormControl variant="outlined">
+              <InputLabel id="sound-theme-select-label">Sound Theme</InputLabel>
+              <Select
+                labelId="sound-theme-select-label"
+                id="sound-theme-select"
+                displayEmpty
+                input={<OutlinedInput label="Sound Theme" />}
+                value={soundTheme}
+                onChange={(e) => setSoundTheme(e.target.value as SoundTheme)}
+                sx={{ width: 280, maxWidth: "100%" }}
+              >
+                {Object.values(SoundTheme).map((theme) => (
+                  <MenuItem key={theme} value={theme}>
+                    {theme.charAt(0).toUpperCase() + theme.slice(1)}
                   </MenuItem>
                 ))}
               </Select>

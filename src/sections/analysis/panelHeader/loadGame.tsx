@@ -53,7 +53,7 @@ export default function LoadGame() {
 
     if (gameFromUrl) {
       const orientation = !(
-        gameFromUrl.site === "Chesskit.org" && gameFromUrl.black.name === "You"
+        gameFromUrl.site === "Freechess.org" && gameFromUrl.black.name === "You"
       );
       resetAndSetGamePgn(gameFromUrl.pgn, orientation, gameFromUrl.eval);
     } else if (typeof lichessGameId === "string" && !!lichessGameId) {

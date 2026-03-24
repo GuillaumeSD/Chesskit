@@ -6,9 +6,9 @@ const soundsCache = new Map<string, AudioBuffer>();
 
 type Sound = "move" | "capture" | "illegalMove";
 const soundUrls: Record<Sound, string> = {
-  move: "/sounds/move.mp3",
-  capture: "/sounds/capture.mp3",
-  illegalMove: "/sounds/error.mp3",
+  move: "/sound/standard/Move.mp3",
+  capture: "/sound/standard/Capture.mp3",
+  illegalMove: "/sound/standard/Error.mp3",
 };
 export const play = async (sound: Sound) => {
   if (timeout) clearTimeout(timeout);

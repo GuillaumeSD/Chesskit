@@ -16,11 +16,10 @@ import { Chess } from "chess.js";
 import { getSquareRenderer } from "./squareRenderer";
 import { CurrentPosition } from "@/types/eval";
 import EvaluationBar from "./evaluationBar";
-import { CLASSIFICATION_COLORS } from "@/constants";
+import { BOARD_THEMES, CLASSIFICATION_COLORS } from "@/constants";
 import { Player } from "@/types/game";
 import PlayerHeader from "./playerHeader";
-import { boardHueAtom, pieceSetAtom } from "./states";
-import tinycolor from "tinycolor2";
+import { boardThemeAtom, pieceSetAtom } from "./states";
 
 export interface Props {
   id: string;
@@ -52,7 +51,7 @@ export default function Board({
   const boardRef = useRef<HTMLDivElement>(null);
   const game = useAtomValue(gameAtom);
   const { playMove } = useChessActions(gameAtom);
-  const clickedSquaresAtom = useMemo(() => atom<Square[]>([]), []);
+  const clickedSquaresAtom = useMemo(() => atom<Record<string, string>>({}), []);
   const setClickedSquares = useSetAtom(clickedSquaresAtom);
   const playableSquaresAtom = useMemo(() => atom<Square[]>([]), []);
   const setPlayableSquares = useSetAtom(playableSquaresAtom);
@@ -61,12 +60,38 @@ export default function Board({
   const [moveClickFrom, setMoveClickFrom] = useState<Square | null>(null);
   const [moveClickTo, setMoveClickTo] = useState<Square | null>(null);
   const pieceSet = useAtomValue(pieceSetAtom);
-  const boardHue = useAtomValue(boardHueAtom);
+  const boardThemeName = useAtomValue(boardThemeAtom);
+  const boardTheme = BOARD_THEMES.find((t) => t.name === boardThemeName) || BOARD_THEMES[0];
+  const [arrowColor, setArrowColor] = useState("#15781B");
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.shiftKey) setArrowColor("#882020");
+      else if (e.altKey) setArrowColor("#003088");
+      else if (e.ctrlKey || e.metaKey) setArrowColor("#e68f00");
+      else setArrowColor("#15781B");
+    };
+
+    const handleKeyUp = (e: KeyboardEvent) => {
+      if (e.shiftKey) setArrowColor("#882020");
+      else if (e.altKey) setArrowColor("#003088");
+      else if (e.ctrlKey || e.metaKey) setArrowColor("#e68f00");
+      else setArrowColor("#15781B");
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    window.addEventListener("keyup", handleKeyUp);
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener("keyup", handleKeyUp);
+    };
+  }, []);
 
   const gameFen = game.fen();
 
   useEffect(() => {
-    setClickedSquares([]);
+    setClickedSquares({});
   }, [gameFen, setClickedSquares]);
 
   const isPiecePlayable = useCallback(
@@ -110,7 +135,7 @@ export default function Board({
 
   const handleSquareLeftClick = useCallback(
     (square: Square, piece?: string) => {
-      setClickedSquares([]);
+      setClickedSquares({});
 
       if (!moveClickFrom) {
         if (piece && !isPiecePlayable({ piece })) return;
@@ -156,13 +181,20 @@ export default function Board({
 
   const handleSquareRightClick = useCallback(
     (square: Square) => {
-      setClickedSquares((prev) =>
-        prev.includes(square)
-          ? prev.filter((s) => s !== square)
-          : [...prev, square]
-      );
+      setClickedSquares((prev) => {
+        const newClickedSquares = { ...prev };
+        let color = "#15781B";
+        color = arrowColor;
+
+        if (newClickedSquares[square] === color) {
+          delete newClickedSquares[square];
+        } else {
+          newClickedSquares[square] = color;
+        }
+        return newClickedSquares;
+      });
     },
-    [setClickedSquares]
+    [setClickedSquares, arrowColor]
   );
 
   const handlePieceDragBegin = useCallback(
@@ -222,16 +254,14 @@ export default function Board({
       const bestMoveArrow = [
         bestMove.slice(0, 2),
         bestMove.slice(2, 4),
-        tinycolor(CLASSIFICATION_COLORS[MoveClassification.Best])
-          .spin(-boardHue)
-          .toHexString(),
+        CLASSIFICATION_COLORS[MoveClassification.Best],
       ] as Arrow;
 
       return [bestMoveArrow];
     }
 
     return [];
-  }, [position, showBestMoveArrow, boardHue]);
+  }, [position, showBestMoveArrow]);
 
   const SquareRenderer: CustomSquareRenderer = useMemo(() => {
     return getSquareRenderer({
@@ -268,21 +298,20 @@ export default function Board({
     [pieceSet]
   );
 
-  const customBoardStyle = useMemo(() => {
-    const commonBoardStyle = {
-      borderRadius: "5px",
-      boxShadow: "0 2px 10px rgba(0, 0, 0, 0.5)",
-    };
+  const customBoardStyle = useMemo(() => ({
+    borderRadius: "5px",
+    boxShadow: "0 2px 10px rgba(0, 0, 0, 0.5)",
+  }), []);
 
-    if (boardHue) {
-      return {
-        ...commonBoardStyle,
-        filter: `hue-rotate(${boardHue}deg)`,
-      };
-    }
+  const customLightSquareStyle = useMemo(
+    () => ({ backgroundColor: boardTheme.lightSquare }),
+    [boardTheme]
+  );
 
-    return commonBoardStyle;
-  }, [boardHue]);
+  const customDarkSquareStyle = useMemo(
+    () => ({ backgroundColor: boardTheme.darkSquare }),
+    [boardTheme]
+  );
 
   return (
     <Grid
@@ -329,6 +358,9 @@ export default function Board({
               boardOrientation === Color.White ? "white" : "black"
             }
             customBoardStyle={customBoardStyle}
+            customLightSquareStyle={customLightSquareStyle}
+            customDarkSquareStyle={customDarkSquareStyle}
+            customArrowColor={arrowColor}
             customArrows={customArrows}
             isDraggablePiece={isPiecePlayable}
             customSquare={SquareRenderer}
