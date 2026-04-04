@@ -13,6 +13,11 @@ import {
 
 const MenuOptions = [
   { text: "Play", icon: "streamline:chess-pawn", href: "/play" },
+  {
+    text: "Playground",
+    icon: "mdi:flask-outline",
+    href: "/playground",
+  },
   { text: "Analysis", icon: "streamline:magnifying-glass-solid", href: "/" },
   {
     text: "Database",
