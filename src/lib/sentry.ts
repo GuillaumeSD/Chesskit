@@ -12,6 +12,6 @@ export const logErrorToSentry = (
       extra: context,
     });
   } else {
-    console.error(error);
+    console.log(error);
   }
 };

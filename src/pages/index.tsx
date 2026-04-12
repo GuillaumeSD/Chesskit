@@ -55,7 +55,7 @@ export default function GameAnalysis() {
           borderWidth: 2,
           boxShadow: "0 2px 10px rgba(0, 0, 0, 0.5)",
         }}
-        padding={2}
+        padding={{ xs: "10px 5px 20px", sm: 2 }}
         style={{
           maxWidth: "1200px",
         }}

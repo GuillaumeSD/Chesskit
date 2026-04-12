@@ -6,6 +6,7 @@ const nextConfig = (phase: string): NextConfig => ({
   output: phase === PHASE_PRODUCTION_BUILD ? "export" : undefined,
   trailingSlash: false,
   reactStrictMode: true,
+  reactCompiler: true,
   images: {
     unoptimized: true,
   },
@@ -81,9 +82,15 @@ export default withSentryConfig(nextConfig, {
   org: process.env.SENTRY_ORG,
   project: "javascript-nextjs",
   widenClientFileUpload: true,
-  reactComponentAnnotation: {
-    enabled: true,
+  sourcemaps: {
+    deleteSourcemapsAfterUpload: true,
   },
-  hideSourceMaps: true,
-  disableLogger: true,
+  webpack: {
+    treeshake: {
+      removeDebugLogging: true,
+    },
+    reactComponentAnnotation: {
+      enabled: true,
+    },
+  },
 });
