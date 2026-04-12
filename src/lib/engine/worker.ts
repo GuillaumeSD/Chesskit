@@ -34,6 +34,7 @@ export const sendCommandsToWorker = (
       onNewMessage?.(messages);
 
       if (data.startsWith(finalMessage)) {
+        worker.listen = () => null;
         resolve(messages);
       }
     };

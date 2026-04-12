@@ -16,3 +16,10 @@ export const isInViewport = (element: HTMLElement) => {
 
 export const sleep = (ms: number) =>
   new Promise((resolve) => setTimeout(resolve, ms));
+
+export const logMessageIfLocalhost = (message: string) => {
+  if (!window) return;
+  if (window.location.hostname !== "localhost") return;
+
+  console.log(message);
+};

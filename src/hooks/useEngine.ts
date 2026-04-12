@@ -11,6 +11,7 @@ export const useEngine = (engineName: EngineName | undefined) => {
   const [engine, setEngine] = useState<UciEngine | null>(null);
 
   useEffect(() => {
+    let isMounted = true;
     if (!engineName) return;
 
     if (engineName !== EngineName.Stockfish11 && !isWasmSupported()) {
@@ -18,11 +19,20 @@ export const useEngine = (engineName: EngineName | undefined) => {
     }
 
     pickEngine(engineName).then((newEngine) => {
+      if (!isMounted) {
+        newEngine.shutdown();
+        return;
+      }
+
       setEngine((prev) => {
         prev?.shutdown();
         return newEngine;
       });
     });
+
+    return () => {
+      isMounted = false;
+    };
   }, [engineName]);
 
   return engine;

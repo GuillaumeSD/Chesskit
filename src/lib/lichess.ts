@@ -85,7 +85,7 @@ const fetchLichessEval = async (
   try {
     const res = await fetch(
       `https://lichess.org/api/cloud-eval?fen=${fen}&multiPv=${multiPv}`,
-      { method: "GET", signal: AbortSignal.timeout(200) }
+      { method: "GET", signal: AbortSignal.timeout(1_000) }
     );
 
     return res.json();

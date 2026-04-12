@@ -16,6 +16,7 @@ import { getMovesClassification } from "./helpers/moveClassification";
 import { computeEstimatedElo } from "./helpers/estimateElo";
 import { EngineWorker, WorkerJob } from "@/types/engine";
 import { getEngineWorker, sendCommandsToWorker } from "./worker";
+import { logMessageIfLocalhost } from "../helpers";
 
 export class UciEngine {
   public readonly name: EngineName;
@@ -144,7 +145,17 @@ export class UciEngine {
   }
 
   public async stopAllCurrentJobs(): Promise<void> {
+    const abandonedJobs = [...this.workerQueue];
     this.workerQueue = [];
+
+    for (const worker of this.workers) {
+      worker.listen = () => null;
+    }
+
+    for (const job of abandonedJobs) {
+      job.resolve([]);
+    }
+
     await this.sendCommandsToEachWorker(["stop", "isready"], "readyok");
 
     for (const worker of this.workers) {
@@ -369,13 +380,21 @@ export class UciEngine {
     await this.stopAllCurrentJobs();
     await this.setMultiPv(multiPv);
 
+    let lastUpdate = 0;
+    const THROTTLE_MS = 60; // Limit UI updates to ~16 updates per second to avoid performance issues
+
     const onNewMessage = (messages: string[]) => {
       if (!setPartialEval) return;
+
+      const now = performance.now();
+      if (now < lastUpdate + THROTTLE_MS) return;
+      lastUpdate = now;
+
       const parsedResults = parseEvaluationResults(messages, fen);
       setPartialEval(parsedResults);
     };
 
-    console.log(`Evaluating position: ${fen}`);
+    logMessageIfLocalhost(`Evaluating position: ${fen}`);
 
     const lichessEval = await lichessEvalPromise;
     if (
@@ -405,7 +424,7 @@ export class UciEngine {
     await this.stopAllCurrentJobs();
     await this.setElo(elo);
 
-    console.log(`Evaluating position: ${fen}`);
+    logMessageIfLocalhost(`Evaluating position: ${fen}`);
 
     const results = await this.sendCommands(
       [`position fen ${fen}`, `go depth ${depth}`],
