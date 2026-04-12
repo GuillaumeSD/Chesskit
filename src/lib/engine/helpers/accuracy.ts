@@ -35,7 +35,9 @@ const getPlayerAccuracy = (
   const playerWeights = weights.filter((_, index) => index % 2 === remainder);
 
   const weightedMean = getWeightedMean(playerAccuracies, playerWeights);
-  const harmonicMean = getHarmonicMean(playerAccuracies);
+  const harmonicMean = getHarmonicMean(
+    playerAccuracies.map((a) => Math.max(a, 10))
+  );
 
   return (weightedMean + harmonicMean) / 2;
 };

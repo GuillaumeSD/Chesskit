@@ -270,7 +270,7 @@ export default function Board({
         rowGap={1.5}
         justifyContent="center"
         alignItems="center"
-        paddingLeft={showEvaluationBar ? 2 : 0}
+        paddingLeft={{ xs: 0.5, sm: showEvaluationBar ? 2 : 0 }}
         size="grow"
       >
         <PlayerHeader

@@ -42,6 +42,7 @@ export const getChessComUserRecentGames = async (
   }
 
   const gamesToReturn = games
+    .filter((game) => game.pgn && game.end_time)
     .sort((a, b) => b.end_time - a.end_time)
     .slice(0, 50)
     .map(formatChessComGame);

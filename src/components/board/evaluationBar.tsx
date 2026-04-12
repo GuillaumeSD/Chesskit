@@ -35,10 +35,10 @@ export default function EvaluationBar({
       container
       justifyContent="center"
       alignItems="center"
-      width="2rem"
+      width={{ xs: "1.6rem", sm: "2rem" }}
       height={height}
       border="1px solid black"
-      borderRadius="5px"
+      borderRadius={{ xs: "3px", sm: "5px" }}
     >
       <Box
         sx={{
@@ -53,13 +53,16 @@ export default function EvaluationBar({
         }%`}
         width="100%"
         borderRadius={
-          evalBar.whiteBarPercentage === 100 ? "5px" : "5px 5px 0 0"
+          evalBar.whiteBarPercentage === 100
+            ? { xs: "3px", sm: "5px" }
+            : { xs: "3px 3px 0 0", sm: "5px 5px 0 0" }
         }
       >
         <Typography
           color={boardOrientation === Color.White ? "white" : "black"}
           textAlign="center"
           width="100%"
+          fontSize={{ xs: "0.9rem", sm: "1rem" }}
         >
           {(evalBar.whiteBarPercentage < 50 &&
             boardOrientation === Color.White) ||
@@ -80,17 +83,20 @@ export default function EvaluationBar({
             ? evalBar.whiteBarPercentage
             : 100 - evalBar.whiteBarPercentage
         }%`}
-        width={"100%"}
+        width="100%"
         display="flex"
         alignItems="flex-end"
         borderRadius={
-          evalBar.whiteBarPercentage === 100 ? "5px" : "0 0 5px 5px"
+          evalBar.whiteBarPercentage === 100
+            ? { xs: "3px", sm: "5px" }
+            : { xs: "0 0 3px 3px", sm: "0 0 5px 5px" }
         }
       >
         <Typography
           color={boardOrientation === Color.White ? "black" : "white"}
           textAlign="center"
           width="100%"
+          fontSize={{ xs: "0.9rem", sm: "1rem" }}
         >
           {(evalBar.whiteBarPercentage >= 50 &&
             boardOrientation === Color.White) ||

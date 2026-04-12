@@ -1,15 +1,9 @@
-import { useChessActions } from "@/hooks/useChessActions";
 import Board from "@/sections/analysis/board";
 import PanelHeader from "@/sections/analysis/panelHeader";
 import PanelToolBar from "@/sections/analysis/panelToolbar";
 import AnalysisTab from "@/sections/analysis/panelBody/analysisTab";
 import ClassificationTab from "@/sections/analysis/panelBody/classificationTab";
-import {
-  boardAtom,
-  boardOrientationAtom,
-  gameAtom,
-  gameEvalAtom,
-} from "@/sections/analysis/states";
+import { boardAtom, gameAtom, gameEvalAtom } from "@/sections/analysis/states";
 import {
   Box,
   Divider,
@@ -19,8 +13,7 @@ import {
   useMediaQuery,
   useTheme,
 } from "@mui/material";
-import { useAtom, useAtomValue, useSetAtom } from "jotai";
-import { useRouter } from "next/router";
+import { useAtomValue } from "jotai";
 import { useEffect, useState } from "react";
 import { Icon } from "@iconify/react";
 import EngineSettingsButton from "@/sections/engineSettings/engineSettingsButton";
@@ -32,24 +25,9 @@ export default function GameAnalysis() {
   const [tab, setTab] = useState(0);
   const isLgOrGreater = useMediaQuery(theme.breakpoints.up("lg"));
 
-  const { reset: resetBoard } = useChessActions(boardAtom);
-  const { reset: resetGame } = useChessActions(gameAtom);
-  const [gameEval, setGameEval] = useAtom(gameEvalAtom);
+  const gameEval = useAtomValue(gameEvalAtom);
   const game = useAtomValue(gameAtom);
   const board = useAtomValue(boardAtom);
-  const setBoardOrientation = useSetAtom(boardOrientationAtom);
-
-  const router = useRouter();
-  const { gameId } = router.query;
-
-  useEffect(() => {
-    if (!gameId) {
-      resetBoard();
-      setGameEval(undefined);
-      setBoardOrientation(true);
-      resetGame({ noHeaders: true });
-    }
-  }, [gameId, setGameEval, setBoardOrientation, resetBoard, resetGame]);
 
   const showMovesTab = game.history().length > 0 || board.history().length > 0;
 

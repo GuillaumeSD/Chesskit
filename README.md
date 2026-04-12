@@ -41,6 +41,8 @@ Deployed on AWS with [AWS CDK](https://docs.aws.amazon.com/cdk/v2/guide/home.htm
 
 ## Running the app in dev mode
 
+#### Using Node.js
+
 > [!IMPORTANT]  
 > At least [Node.js](https://nodejs.org) 22.11 is required.
 
@@ -56,6 +58,14 @@ Run the development server :
 npm run dev
 ```
 
+#### Using Docker
+
+Run the development server :
+
+```bash
+HOST_UID=$(id -u) HOST_GID=$(id -g) COMMAND=dev docker compose -f ./docker/docker-compose-dev.yml up
+```
+
 Open [http://localhost:3000](http://localhost:3000) in the browser to see the app running.
 
 The app will automatically refresh on any source file change.
@@ -66,6 +76,12 @@ Run it with :
 
 ```bash
 npm run lint
+```
+
+or with docker :
+
+```bash
+HOST_UID=$(id -u) HOST_GID=$(id -g) COMMAND=lint docker compose -f ./docker/docker-compose-dev.yml up
 ```
 
 ## Contribute
@@ -84,3 +100,15 @@ npm run deploy
 
 Chesskit is licensed under the GNU Affero General Public License 3. See [copying](COPYING.md) for
 details.
+
+## Growing thanks to you ❤️
+
+[![Stargazers over time](https://starchart.cc/GuillaumeSD/Chesskit.svg?variant=adaptive)](https://starchart.cc/GuillaumeSD/Chesskit)
+
+## Self-hosting
+
+To run the project locally in production mode, you can use docker and the following command :
+
+```bash
+docker compose -f ./docker/docker-compose-prod.yml up
+```

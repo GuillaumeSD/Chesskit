@@ -60,6 +60,8 @@ export const parseEvaluationResults = (
 
 export const sortLines = (a: LineEval, b: LineEval): number => {
   if (a.mate !== undefined && b.mate !== undefined) {
+    if (a.mate > 0 && b.mate < 0) return -1;
+    if (a.mate < 0 && b.mate > 0) return 1;
     return a.mate - b.mate;
   }
 

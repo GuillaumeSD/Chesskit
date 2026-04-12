@@ -18,8 +18,7 @@ export const getLineWinPercentage = (line: LineEval): number => {
 };
 
 const getWinPercentageFromMate = (mate: number): number => {
-  const mateInf = mate * Infinity;
-  return getWinPercentageFromCp(mateInf);
+  return mate > 0 ? 100 : 0;
 };
 
 // Source: https://github.com/lichess-org/lila/blob/a320a93b68dabee862b8093b1b2acdfe132b9966/modules/analyse/src/main/WinPercent.scala#L27
