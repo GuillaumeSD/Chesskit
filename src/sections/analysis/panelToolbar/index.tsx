@@ -1,13 +1,14 @@
-import { Grid2 as Grid, IconButton, Tooltip } from "@mui/material";
-import { Icon } from "@iconify/react";
+import { Stack, useMediaQuery } from "@mui/material";
 import { useAtomValue } from "jotai";
-import { boardAtom, gameAtom } from "../states";
+import { boardAtom } from "../states";
 import { useChessActions } from "@/hooks/useChessActions";
 import FlipBoardButton from "./flipBoardButton";
 import NextMoveButton from "./nextMoveButton";
 import GoToLastPositionButton from "./goToLastPositionButton";
 import SaveButton from "./saveButton";
 import { useEffect } from "react";
+import { ToolbarButton } from "@/components/ToolbarButton";
+import { CopyPgnButton } from "./copyPgnButton";
 
 export default function PanelToolBar() {
   const board = useAtomValue(boardAtom);
@@ -15,7 +16,6 @@ export default function PanelToolBar() {
     useChessActions(boardAtom);
 
   const boardHistory = board.history();
-  const game = useAtomValue(gameAtom);
 
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
@@ -34,53 +34,58 @@ export default function PanelToolBar() {
     };
   }, [undoBoardMove, boardHistory, resetBoard, board]);
 
+  const isSmOrGreater = useMediaQuery((theme) => theme.breakpoints.up("sm"));
+
   return (
-    <Grid container justifyContent="center" alignItems="center" size={12}>
-      <FlipBoardButton />
+    <>
+      <Stack
+        direction="row"
+        justifyContent={{ xs: "space-around", md: "center" }}
+        alignItems="center"
+        gap={{ xs: undefined, md: 3 }}
+        width="100%"
+      >
+        {isSmOrGreater && <FlipBoardButton />}
 
-      <Tooltip title="Reset board">
-        <Grid>
-          <IconButton
-            onClick={() => resetBoard()}
-            disabled={boardHistory.length === 0}
-            sx={{ paddingX: 2, paddingY: 1 }}
-          >
-            <Icon icon="ri:skip-back-line" />
-          </IconButton>
-        </Grid>
-      </Tooltip>
+        <ToolbarButton
+          tooltip="Reset board"
+          onClick={() => resetBoard()}
+          icon="ri:skip-back-line"
+          disabled={boardHistory.length === 0}
+        />
 
-      <Tooltip title="Go to previous move">
-        <Grid>
-          <IconButton
-            onClick={() => undoBoardMove()}
-            disabled={boardHistory.length === 0}
-            sx={{ paddingX: 2, paddingY: 1 }}
-          >
-            <Icon icon="ri:arrow-left-s-line" height={30} />
-          </IconButton>
-        </Grid>
-      </Tooltip>
+        <ToolbarButton
+          tooltip="Go to previous move"
+          onClick={() => undoBoardMove()}
+          icon="ri:arrow-left-s-line"
+          disabled={boardHistory.length === 0}
+          iconHeight={30}
+        />
 
-      <NextMoveButton />
+        <NextMoveButton />
 
-      <GoToLastPositionButton />
+        <GoToLastPositionButton />
 
-      <Tooltip title="Copy pgn">
-        <Grid>
-          <IconButton
-            disabled={game.history().length === 0}
-            onClick={() => {
-              navigator.clipboard?.writeText?.(game.pgn());
-            }}
-            sx={{ paddingX: 2, paddingY: 1 }}
-          >
-            <Icon icon="ri:clipboard-line" />
-          </IconButton>
-        </Grid>
-      </Tooltip>
+        {isSmOrGreater && (
+          <>
+            <CopyPgnButton />
+            <SaveButton />
+          </>
+        )}
+      </Stack>
 
-      <SaveButton />
-    </Grid>
+      {!isSmOrGreater && (
+        <Stack
+          direction="row"
+          justifyContent="space-around"
+          alignItems="center"
+          width="100%"
+        >
+          <FlipBoardButton />
+          <CopyPgnButton />
+          <SaveButton />
+        </Stack>
+      )}
+    </>
   );
 }

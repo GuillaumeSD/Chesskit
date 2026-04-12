@@ -1,8 +1,7 @@
 import { useSetAtom } from "jotai";
 import { boardOrientationAtom } from "../states";
-import { IconButton, Tooltip } from "@mui/material";
-import { Icon } from "@iconify/react";
 import { useEffect } from "react";
+import { ToolbarButton } from "@/components/ToolbarButton";
 
 export default function FlipBoardButton() {
   const setBoardOrientation = useSetAtom(boardOrientationAtom);
@@ -22,13 +21,10 @@ export default function FlipBoardButton() {
   }, [setBoardOrientation]);
 
   return (
-    <Tooltip title="Flip board">
-      <IconButton
-        onClick={() => setBoardOrientation((prev) => !prev)}
-        sx={{ paddingX: 2, paddingY: 1 }}
-      >
-        <Icon icon="eva:flip-fill" />
-      </IconButton>
-    </Tooltip>
+    <ToolbarButton
+      tooltip="Flip board"
+      onClick={() => setBoardOrientation((prev) => !prev)}
+      icon="eva:flip-fill"
+    />
   );
 }

@@ -10,6 +10,7 @@ import {
 import { CLASSIFICATION_COLORS } from "@/constants";
 import { boardHueAtom } from "./states";
 import { areObjectsEqual, isObject } from "@/lib/object";
+import { useMediaQuery } from "@mui/material";
 
 export interface Props {
   currentPositionAtom: PrimitiveAtom<CurrentPosition>;
@@ -96,6 +97,13 @@ export function getSquareRenderer({
         [isClicked, isFromSquare, isToSquare, moveClassification]
       );
 
+      const isLgOrGreater = useMediaQuery((theme) =>
+        theme.breakpoints.up("lg")
+      );
+
+      const isBorderColumn = square[0] === "a" || square[0] === "h";
+      const iconOffset = isBorderColumn && !isLgOrGreater ? 5 : 0;
+
       return (
         <div
           ref={ref}
@@ -116,8 +124,8 @@ export function getSquareRenderer({
               height={Math.min(40, boardSize * 0.06)}
               style={{
                 position: "absolute",
-                top: Math.max(-13.5, boardSize * -0.03) + "px",
-                right: Math.max(-13.5, boardSize * -0.03) + "px",
+                top: Math.max(-13.5, boardSize * -0.03) + iconOffset + "px",
+                right: Math.max(-13.5, boardSize * -0.03) + iconOffset + "px",
                 zIndex: 100,
               }}
             />

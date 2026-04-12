@@ -1,9 +1,8 @@
-import { Icon } from "@iconify/react";
-import { Grid2 as Grid, IconButton, Tooltip } from "@mui/material";
 import { useAtomValue } from "jotai";
 import { boardAtom, gameAtom } from "../states";
 import { useChessActions } from "@/hooks/useChessActions";
 import { useEffect } from "react";
+import { ToolbarButton } from "@/components/ToolbarButton";
 
 export default function GoToLastPositionButton() {
   const { setPgn: setBoardPgn } = useChessActions(boardAtom);
@@ -31,19 +30,14 @@ export default function GoToLastPositionButton() {
   }, [isButtonDisabled, setBoardPgn, game]);
 
   return (
-    <Tooltip title="Go to final position">
-      <Grid>
-        <IconButton
-          onClick={() => {
-            if (isButtonDisabled) return;
-            setBoardPgn(game.pgn());
-          }}
-          disabled={isButtonDisabled}
-          sx={{ paddingX: 2, paddingY: 1 }}
-        >
-          <Icon icon="ri:skip-forward-line" />
-        </IconButton>
-      </Grid>
-    </Tooltip>
+    <ToolbarButton
+      tooltip="Go to final position"
+      onClick={() => {
+        if (isButtonDisabled) return;
+        setBoardPgn(game.pgn());
+      }}
+      icon="ri:skip-forward-line"
+      disabled={isButtonDisabled}
+    />
   );
 }

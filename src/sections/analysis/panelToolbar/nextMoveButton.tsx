@@ -1,9 +1,8 @@
-import { Icon } from "@iconify/react";
-import { Grid2 as Grid, IconButton, Tooltip } from "@mui/material";
 import { useAtomValue } from "jotai";
 import { boardAtom, gameAtom } from "../states";
 import { useChessActions } from "@/hooks/useChessActions";
 import { useCallback, useEffect } from "react";
+import { ToolbarButton } from "@/components/ToolbarButton";
 
 export default function NextMoveButton() {
   const { playMove: playBoardMove } = useChessActions(boardAtom);
@@ -51,16 +50,12 @@ export default function NextMoveButton() {
   }, [addNextGameMoveToBoard]);
 
   return (
-    <Tooltip title="Go to next move">
-      <Grid>
-        <IconButton
-          onClick={() => addNextGameMoveToBoard()}
-          disabled={!isButtonEnabled}
-          sx={{ paddingX: 2, paddingY: 1 }}
-        >
-          <Icon icon="ri:arrow-right-s-line" height={30} />
-        </IconButton>
-      </Grid>
-    </Tooltip>
+    <ToolbarButton
+      tooltip="Go to next move"
+      onClick={() => addNextGameMoveToBoard()}
+      icon="ri:arrow-right-s-line"
+      disabled={!isButtonEnabled}
+      iconHeight={30}
+    />
   );
 }
