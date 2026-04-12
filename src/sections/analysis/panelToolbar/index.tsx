@@ -43,7 +43,7 @@ export default function PanelToolBar() {
           <IconButton
             onClick={() => resetBoard()}
             disabled={boardHistory.length === 0}
-            sx={{ paddingX: 1.2, paddingY: 0.5 }}
+            sx={{ paddingX: 2, paddingY: 1 }}
           >
             <Icon icon="ri:skip-back-line" />
           </IconButton>
@@ -55,7 +55,7 @@ export default function PanelToolBar() {
           <IconButton
             onClick={() => undoBoardMove()}
             disabled={boardHistory.length === 0}
-            sx={{ paddingX: 1.2, paddingY: 0.5 }}
+            sx={{ paddingX: 2, paddingY: 1 }}
           >
             <Icon icon="ri:arrow-left-s-line" height={30} />
           </IconButton>
@@ -73,7 +73,7 @@ export default function PanelToolBar() {
             onClick={() => {
               navigator.clipboard?.writeText?.(game.pgn());
             }}
-            sx={{ paddingX: 1.2, paddingY: 0.5 }}
+            sx={{ paddingX: 2, paddingY: 1 }}
           >
             <Icon icon="ri:clipboard-line" />
           </IconButton>
