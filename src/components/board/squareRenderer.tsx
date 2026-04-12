@@ -126,6 +126,7 @@ export function getSquareRenderer({
       );
     }),
     (prevProps, nextProps) => {
+      if (prevProps === nextProps) return true;
       if (prevProps.square !== nextProps.square) return false;
       if (prevProps.squareColor !== nextProps.squareColor) return false;
       if (prevProps.key !== nextProps.key) return false;
@@ -178,6 +179,7 @@ const areChildrensEqual = (
   prevChildren: React.ReactNode,
   nextChildren: React.ReactNode
 ): boolean => {
+  if (prevChildren === nextChildren) return true;
   if (!Array.isArray(prevChildren) || !Array.isArray(nextChildren)) {
     return false;
   }
