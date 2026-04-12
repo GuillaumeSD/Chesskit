@@ -1,10 +1,6 @@
 import * as cdk from "aws-cdk-lib";
 import { Construct } from "constructs";
-import {
-  AccessLevel,
-  Distribution,
-  ResponseHeadersPolicy,
-} from "aws-cdk-lib/aws-cloudfront";
+import { AccessLevel, Distribution } from "aws-cdk-lib/aws-cloudfront";
 import { S3BucketOrigin } from "aws-cdk-lib/aws-cloudfront-origins";
 import { Bucket, BucketAccessControl } from "aws-cdk-lib/aws-s3";
 import {
@@ -108,27 +104,6 @@ export class AppStack extends cdk.Stack {
       }
     );
 
-    const responseHeadersPolicy = new ResponseHeadersPolicy(
-      this,
-      "ResponseHeadersPolicy",
-      {
-        customHeadersBehavior: {
-          customHeaders: [
-            {
-              header: "Cross-Origin-Embedder-Policy",
-              value: "require-corp",
-              override: true,
-            },
-            {
-              header: "Cross-Origin-Opener-Policy",
-              value: "same-origin",
-              override: true,
-            },
-          ],
-        },
-      }
-    );
-
     const hostedZone = HostedZone.fromLookup(this, "HostedZone", {
       domainName,
     });
@@ -156,12 +131,10 @@ export class AppStack extends cdk.Stack {
       ],
       defaultBehavior: {
         origin: mainOriginAccessControl,
-        responseHeadersPolicy,
       },
       additionalBehaviors: {
         "/engines/*": {
           origin: enginesOriginAccessControl,
-          responseHeadersPolicy,
         },
       },
       domainNames: [domainName],

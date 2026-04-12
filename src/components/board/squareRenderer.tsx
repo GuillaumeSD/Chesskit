@@ -102,7 +102,7 @@ export function getSquareRenderer({
       );
 
       const isBorderColumn = square[0] === "a" || square[0] === "h";
-      const iconOffset = isBorderColumn && !isLgOrGreater ? 5 : 0;
+      const iconOffset = isBorderColumn && !isLgOrGreater ? 7 : 0;
 
       return (
         <div

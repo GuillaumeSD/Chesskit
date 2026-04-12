@@ -4,10 +4,10 @@
   "private": true,
   "license": "GPL-3.0-only",
   "scripts": {
-    "dev": "next dev --turbo",
+    "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint && tsc --noEmit",
+    "lint": "eslint --ext .ts,.tsx src/ && tsc --noEmit",
     "deploy": "npm run lint && npm run build && cdk deploy"
   },
   "dependencies": {

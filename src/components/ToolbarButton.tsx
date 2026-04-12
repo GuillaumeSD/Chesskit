@@ -20,13 +20,24 @@ export const ToolbarButton = ({
 
   return (
     <Tooltip title={tooltip}>
-      <IconButton
-        onClick={onClick}
-        disabled={disabled}
-        sx={{ paddingX, height: "stretch", borderRadius: "8px", width: "auto" }}
+      <span
+        style={{
+          height: "stretch",
+        }}
       >
-        <Icon icon={icon} height={iconHeight} />
-      </IconButton>
+        <IconButton
+          onClick={onClick}
+          disabled={disabled}
+          sx={{
+            paddingX,
+            height: "stretch",
+            borderRadius: "8px",
+            width: "auto",
+          }}
+        >
+          <Icon icon={icon} height={iconHeight} />
+        </IconButton>
+      </span>
     </Tooltip>
   );
 };

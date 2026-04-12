@@ -1,5 +1,4 @@
 import { Chip, Theme, Tooltip, useTheme } from "@mui/material";
-import React from "react";
 
 interface Props {
   result?: string;

@@ -15,29 +15,8 @@ const nextConfig = (phase: string): NextConfig => ({
       ? undefined
       : async () => [
           {
-            source: "/",
-            headers: [
-              {
-                key: "Cross-Origin-Embedder-Policy",
-                value: "require-corp",
-              },
-              {
-                key: "Cross-Origin-Opener-Policy",
-                value: "same-origin",
-              },
-            ],
-          },
-          {
             source: "/engines/:blob*",
             headers: [
-              {
-                key: "Cross-Origin-Embedder-Policy",
-                value: "require-corp",
-              },
-              {
-                key: "Cross-Origin-Opener-Policy",
-                value: "same-origin",
-              },
               {
                 key: "Cache-Control",
                 value: "public, max-age=31536000, immutable",
@@ -45,32 +24,6 @@ const nextConfig = (phase: string): NextConfig => ({
               {
                 key: "Age",
                 value: "181921",
-              },
-            ],
-          },
-          {
-            source: "/play",
-            headers: [
-              {
-                key: "Cross-Origin-Embedder-Policy",
-                value: "require-corp",
-              },
-              {
-                key: "Cross-Origin-Opener-Policy",
-                value: "same-origin",
-              },
-            ],
-          },
-          {
-            source: "/database",
-            headers: [
-              {
-                key: "Cross-Origin-Embedder-Policy",
-                value: "require-corp",
-              },
-              {
-                key: "Cross-Origin-Opener-Policy",
-                value: "same-origin",
               },
             ],
           },
