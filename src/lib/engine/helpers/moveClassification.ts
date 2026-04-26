@@ -51,7 +51,9 @@ export const getMovesClassification = (
 
     const lastPositionWinPercentage = positionsWinPercentage[index - 1];
     const positionWinPercentage = positionsWinPercentage[index];
-    const isWhiteMove = index % 2 === 1;
+
+    const sideToMove = fens[index - 1].split(" ")[1];
+    const isWhiteMove = sideToMove === "w";
 
     if (
       isSplendidMove(
