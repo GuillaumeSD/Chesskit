@@ -19,16 +19,19 @@ export enum EngineName {
 }
 
 export enum MoveClassification {
-  Blunder = "blunder",
-  Mistake = "mistake",
-  Inaccuracy = "inaccuracy",
-  Okay = "okay",
-  Excellent = "excellent",
+  // Standard classifications:
   Best = "best",
+  Excellent = "excellent",
+  Good = "good",
+  Inaccuracy = "inaccuracy",
+  Mistake = "mistake",
+  Blunder = "blunder",
+  // Special classifications:
+  Brilliant = "brilliant",
+  Great = "great",
+  Book = "book",
   Forced = "forced",
-  Opening = "opening",
-  Perfect = "perfect",
-  Splendid = "splendid",
+  Miss = "miss",
 }
 
 export enum Color {

@@ -105,7 +105,7 @@ const getMoveColor = (moveClassification?: MoveClassification) => {
 };
 
 const moveClassificationsToIgnore: MoveClassification[] = [
-  MoveClassification.Okay,
+  MoveClassification.Good,
   MoveClassification.Excellent,
   MoveClassification.Forced,
 ];
