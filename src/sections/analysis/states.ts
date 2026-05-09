@@ -2,6 +2,7 @@ import { DEFAULT_ENGINE } from "@/constants";
 import { getRecommendedWorkersNb } from "@/lib/engine/worker";
 import { EngineName } from "@/types/enums";
 import { CurrentPosition, GameEval, SavedEvals } from "@/types/eval";
+import { GeminiSettings } from "@/types/gemini";
 import { Chess } from "chess.js";
 import { atom } from "jotai";
 import { atomWithStorage } from "jotai/utils";
@@ -25,3 +26,14 @@ export const engineWorkersNbAtom = atomWithStorage(
 export const evaluationProgressAtom = atom(0);
 
 export const savedEvalsAtom = atom<SavedEvals>({});
+
+// Gemini integration
+export const geminiSettingsAtom = atomWithStorage<GeminiSettings>(
+  "geminiSettings",
+  {
+    enabled: true,
+    autoExplain: false,
+  }
+);
+export const currentExplanationAtom = atom<string>("");
+export const isLoadingExplanationAtom = atom<boolean>(false);

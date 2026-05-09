@@ -1,15 +1,21 @@
-import { Skeleton, Stack, Typography } from "@mui/material";
+import { Box, Skeleton, Stack, Tooltip, Typography } from "@mui/material";
 import { useAtomValue } from "jotai";
-import { boardAtom, currentPositionAtom } from "../../states";
+import {
+  boardAtom,
+  currentPositionAtom,
+  geminiSettingsAtom,
+} from "../../states";
 import { useMemo } from "react";
 import { moveLineUciToSan } from "@/lib/chess";
 import { MoveClassification } from "@/types/enums";
 import Image from "next/image";
 import PrettyMoveSan from "@/components/prettyMoveSan";
+import { Icon } from "@iconify/react";
 
 export default function MoveInfo() {
   const position = useAtomValue(currentPositionAtom);
   const board = useAtomValue(boardAtom);
+  const geminiSettings = useAtomValue(geminiSettingsAtom);
 
   const bestMove = position?.lastEval?.bestMove;
 
@@ -72,16 +78,37 @@ export default function MoveInfo() {
             }}
           />
 
-          <PrettyMoveSan
-            typographyProps={{
-              fontSize: "0.9rem",
-            }}
-            san={position.lastMove?.san ?? ""}
-            color={position.lastMove?.color ?? "w"}
-            additionalText={
-              " is " + moveClassificationLabels[moveClassification]
-            }
-          />
+          <Box display="flex" alignItems="center">
+            <PrettyMoveSan
+              typographyProps={{
+                fontSize: "0.9rem",
+              }}
+              san={position.lastMove?.san ?? ""}
+              color={position.lastMove?.color ?? "w"}
+              additionalText={
+                " is " + moveClassificationLabels[moveClassification]
+              }
+            />
+
+            {geminiSettings.enabled && (
+              <Tooltip title="Scroll down for AI explanation">
+                <Box
+                  component="span"
+                  sx={{ ml: 1, display: "inline-flex", alignItems: "center" }}
+                >
+                  <Icon
+                    icon="ic:baseline-psychology-alt"
+                    style={{
+                      color: "#1976d2",
+                      opacity: 0.7,
+                      width: 16,
+                      height: 16,
+                    }}
+                  />
+                </Box>
+              </Tooltip>
+            )}
+          </Box>
         </Stack>
       )}
 
