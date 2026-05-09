@@ -7,16 +7,15 @@ export const CLASSIFICATION_COLORS: Record<MoveClassification, string> = {
   // Standard classifications:
   [MoveClassification.Best]: "#22ac38",
   [MoveClassification.Excellent]: "#22ac38",
-  [MoveClassification.Good]: "#74b038",
+  [MoveClassification.Okay]: "#74b038",
   [MoveClassification.Inaccuracy]: "#f2be1f",
   [MoveClassification.Mistake]: "#e69f00",
   [MoveClassification.Blunder]: "#df5353",
   // Special classifications:
-  [MoveClassification.Brilliant]: "#19d4af",
-  [MoveClassification.Great]: "#3894eb",
-  [MoveClassification.Book]: "#dbac86",
+  [MoveClassification.Splendid]: "#19d4af",
+  [MoveClassification.Perfect]: "#3894eb",
+  [MoveClassification.Opening]: "#dbac86",
   [MoveClassification.Forced]: "#dbac86",
-  [MoveClassification.Miss]: "#ff7769",
 };
 
 export const DEFAULT_ENGINE: EngineName = EngineName.Stockfish18Lite;

@@ -34,7 +34,7 @@ export const getMovesClassification = (
       return {
         ...rawPosition,
         opening: opening.name,
-        moveClassification: MoveClassification.Book,
+        moveClassification: MoveClassification.Opening,
       };
     }
 
@@ -55,16 +55,6 @@ export const getMovesClassification = (
     const lastWinPct = positionsWinPercentage[index - 1];
     const currentWinPct = positionsWinPercentage[index];
     const winPctChange = (currentWinPct - lastWinPct) * (isWhiteMove ? 1 : -1);
-
-    // Miss (for now only): You could have picked up a hanging piece but failed to do so
-    if (isHangingPieceCapture(fens[index - 1], alternativeLine.pv[0]) && winPctChange < MISTAKE_THRESHOLD) {
-      return {
-        ...rawPosition,
-        opening: currentOpening,
-        moveClassification: MoveClassification.Miss,
-      };
-    }
-
     const alternativeWinPct = getLineWinPercentage(alternativeLine);
     const alternativeWinPctChange = (alternativeWinPct - lastWinPct) * (isWhiteMove ? 1 : -1);
 
@@ -90,7 +80,7 @@ export const getMovesClassification = (
         return {
           ...rawPosition,
           opening: currentOpening,
-          moveClassification: MoveClassification.Brilliant,
+          moveClassification: MoveClassification.Splendid,
         };
       }
 
@@ -98,10 +88,10 @@ export const getMovesClassification = (
       return {
         ...rawPosition,
         opening: currentOpening,
-        moveClassification: MoveClassification.Great,
+        moveClassification: MoveClassification.Perfect,
       };
     }
-    
+
     // Standard classifications
     return {
       ...rawPosition,
@@ -117,6 +107,6 @@ const classifyByWinPctChange = (winPctChange: number): MoveClassification => {
   if (winPctChange < BLUNDER_THRESHOLD) return MoveClassification.Blunder;
   if (winPctChange < MISTAKE_THRESHOLD) return MoveClassification.Mistake;
   if (winPctChange < INACCURACY_THRESHOLD) return MoveClassification.Inaccuracy;
-  if (winPctChange < EXCELLENT_THRESHOLD) return MoveClassification.Good;
+  if (winPctChange < EXCELLENT_THRESHOLD) return MoveClassification.Okay;
   return MoveClassification.Excellent;
 };

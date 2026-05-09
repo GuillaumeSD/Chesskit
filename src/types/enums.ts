@@ -22,16 +22,15 @@ export enum MoveClassification {
   // Standard classifications:
   Best = "best",
   Excellent = "excellent",
-  Good = "good",
+  Okay = "okay",
   Inaccuracy = "inaccuracy",
   Mistake = "mistake",
   Blunder = "blunder",
   // Special classifications:
-  Brilliant = "brilliant",
-  Great = "great",
-  Book = "book",
+  Splendid = "splendid",
+  Perfect = "perfect",
+  Opening = "opening",
   Forced = "forced",
-  Miss = "miss",
 }
 
 export enum Color {

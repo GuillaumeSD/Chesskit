@@ -214,10 +214,10 @@ export default function Board({
     if (
       bestMove &&
       showBestMoveArrow &&
-      moveClassification !== MoveClassification.Brilliant &&
-      moveClassification !== MoveClassification.Great &&
+      moveClassification !== MoveClassification.Splendid &&
+      moveClassification !== MoveClassification.Perfect &&
       moveClassification !== MoveClassification.Best &&
-      moveClassification !== MoveClassification.Book &&
+      moveClassification !== MoveClassification.Opening &&
       moveClassification !== MoveClassification.Forced
     ) {
       const bestMoveArrow = [
