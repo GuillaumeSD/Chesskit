@@ -4,16 +4,18 @@ export const MAIN_THEME_COLOR = "#3B9AC6";
 export const LINEAR_PROGRESS_BAR_COLOR = "#3B9AC6";
 
 export const CLASSIFICATION_COLORS: Record<MoveClassification, string> = {
-  [MoveClassification.Opening]: "#dbac86",
-  [MoveClassification.Forced]: "#dbac86",
-  [MoveClassification.Splendid]: "#19d4af",
-  [MoveClassification.Perfect]: "#3894eb",
+  // Standard classifications:
   [MoveClassification.Best]: "#22ac38",
   [MoveClassification.Excellent]: "#22ac38",
   [MoveClassification.Okay]: "#74b038",
   [MoveClassification.Inaccuracy]: "#f2be1f",
   [MoveClassification.Mistake]: "#e69f00",
   [MoveClassification.Blunder]: "#df5353",
+  // Special classifications:
+  [MoveClassification.Splendid]: "#19d4af",
+  [MoveClassification.Perfect]: "#3894eb",
+  [MoveClassification.Opening]: "#dbac86",
+  [MoveClassification.Forced]: "#dbac86",
 };
 
 export const DEFAULT_ENGINE: EngineName = EngineName.Stockfish18Lite;

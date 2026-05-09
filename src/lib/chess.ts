@@ -176,19 +176,25 @@ export const uciMoveParams = (
   promotion: uciMove.slice(4, 5) || undefined,
 });
 
-export const isSimplePieceRecapture = (
+// Also counting pieces of higher value that can be taken with a lower value piece as hanging
+// e.g. a rook threatened by a pawn is considered hanging
+export const isHangingPieceCapture = (
   fen: string,
-  uciMoves: [string, string]
+  playedMove: string
 ): boolean => {
-  const game = new Chess(fen);
-  const moves = uciMoves.map((uciMove) => uciMoveParams(uciMove));
+  const chess = new Chess(fen);
+  const move = chess.move(uciMoveParams(playedMove));
 
-  if (moves[0].to !== moves[1].to) return false;
+  if (!move.captured) return false;
 
-  const piece = game.get(moves[0].to);
-  if (piece) return true;
+  const capturedValue = getPieceValue(move.captured);
+  const capturingValue = getPieceValue(move.piece);
 
-  return false;
+  if (capturingValue < capturedValue) return true;
+
+  const isDefended = chess.moves({ verbose: true }).some((m) => m.to === move.to);
+
+  return !isDefended;
 };
 
 export const getIsPieceSacrifice = (

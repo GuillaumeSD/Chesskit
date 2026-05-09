@@ -67,8 +67,8 @@ export default function GraphTab(props: GridProps) {
         [
           MoveClassification.Splendid,
           MoveClassification.Perfect,
-          MoveClassification.Blunder,
           MoveClassification.Mistake,
+          MoveClassification.Blunder,
         ].includes(moveClass) ||
         (moveClass === MoveClassification.Best &&
           bestDotIndices.has(payload.moveNb))

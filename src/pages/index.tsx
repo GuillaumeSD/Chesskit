@@ -59,7 +59,7 @@ export default function GameAnalysis() {
         style={{
           maxWidth: "1200px",
         }}
-        rowGap={2}
+        rowGap={1.5}
         height={{ xs: tab === 1 ? "40rem" : "auto", lg: "calc(95vh - 60px)" }}
         display="flex"
         flexDirection="column"

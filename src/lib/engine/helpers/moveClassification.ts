@@ -1,11 +1,18 @@
-import { LineEval, PositionEval } from "@/types/eval";
+import { PositionEval } from "@/types/eval";
 import {
   getLineWinPercentage,
   getPositionWinPercentage,
 } from "./winPercentage";
 import { MoveClassification } from "@/types/enums";
 import { openings } from "@/data/openings";
-import { getIsPieceSacrifice, isSimplePieceRecapture } from "@/lib/chess";
+import { getIsPieceSacrifice, isHangingPieceCapture } from "@/lib/chess";
+
+// Thresholds for move quality classification (in win percentage points)
+// Chess.com seems to adjust these dynamically based on the player's strength... Maybe we could do something similar in the future
+const BLUNDER_THRESHOLD = -20;
+const MISTAKE_THRESHOLD = -10;
+const INACCURACY_THRESHOLD = -5;
+const EXCELLENT_THRESHOLD = -2;
 
 export const getMovesClassification = (
   rawPositions: PositionEval[],
@@ -19,6 +26,8 @@ export const getMovesClassification = (
     if (index === 0) return rawPosition;
 
     const currentFen = fens[index].split(" ")[0];
+
+    // Book move: known opening position
     const opening = openings.find((opening) => opening.fen === currentFen);
     if (opening) {
       currentOpening = opening.name;
@@ -29,9 +38,12 @@ export const getMovesClassification = (
       };
     }
 
+    const playedMove = uciMoves[index - 1];
     const prevPosition = rawPositions[index - 1];
+    const alternativeLine = prevPosition.lines.find((line) => line.pv[0] !== playedMove);
 
-    if (prevPosition.lines.length === 1) {
+    // Forced move: only one legal response available
+    if (!alternativeLine) {
       return {
         ...rawPosition,
         opening: currentOpening,
@@ -39,54 +51,41 @@ export const getMovesClassification = (
       };
     }
 
-    const playedMove = uciMoves[index - 1];
-
-    const lastPositionAlternativeLine: LineEval | undefined =
-      prevPosition.lines.filter((line) => line.pv[0] !== playedMove)?.[0];
-    const lastPositionAlternativeLineWinPercentage = lastPositionAlternativeLine
-      ? getLineWinPercentage(lastPositionAlternativeLine)
-      : undefined;
-
-    const bestLinePvToPlay = rawPosition.lines[0].pv;
-
-    const lastPositionWinPercentage = positionsWinPercentage[index - 1];
-    const positionWinPercentage = positionsWinPercentage[index];
-
     const sideToMove = fens[index - 1].split(" ")[1];
     const isWhiteMove = sideToMove === "w";
+    const lastWinPct = positionsWinPercentage[index - 1];
+    const currentWinPct = positionsWinPercentage[index];
+    const winPctChange = (currentWinPct - lastWinPct) * (isWhiteMove ? 1 : -1);
+    const alternativeWinPct = getLineWinPercentage(alternativeLine);
+    const alternativeWinPctChange = (alternativeWinPct - lastWinPct) * (isWhiteMove ? 1 : -1);
 
-    if (
-      isSplendidMove(
-        lastPositionWinPercentage,
-        positionWinPercentage,
-        isWhiteMove,
-        playedMove,
-        bestLinePvToPlay,
-        fens[index - 1],
-        lastPositionAlternativeLineWinPercentage
-      )
-    ) {
-      return {
-        ...rawPosition,
-        opening: currentOpening,
-        moveClassification: MoveClassification.Splendid,
-      };
-    }
+    if (playedMove === prevPosition.bestMove) {
+      const alternativesCollapseSignificantly = alternativeWinPctChange < winPctChange - 10;
+      const hangingPieceCapture = isHangingPieceCapture(fens[index - 1], playedMove);
+      // Sometimes close to checkmate winPctChange becomes a bad metric, so we also use:
+      const alternativeIsUselessSacrifice =
+        getIsPieceSacrifice(fens[index - 1], alternativeLine.pv[0], alternativeLine.pv.slice(1)) &&
+        alternativeWinPctChange < BLUNDER_THRESHOLD;
 
-    const fenTwoMovesAgo = index > 1 ? fens[index - 2] : null;
-    const uciNextTwoMoves: [string, string] | null =
-      index > 1 ? [uciMoves[index - 2], uciMoves[index - 1]] : null;
+      // Best: The move played is the engine's top choice, but not necessarily a brilliant move
+      if (hangingPieceCapture || !alternativesCollapseSignificantly || alternativeIsUselessSacrifice) {
+        return {
+          ...rawPosition,
+          opening: currentOpening,
+          moveClassification: MoveClassification.Best,
+        };
+      }
 
-    if (
-      isPerfectMove(
-        lastPositionWinPercentage,
-        positionWinPercentage,
-        isWhiteMove,
-        lastPositionAlternativeLineWinPercentage,
-        fenTwoMovesAgo,
-        uciNextTwoMoves
-      )
-    ) {
+      // Brilliant: The move played involves a piece sacrifice and is the only good move (alternatives collapse significantly)
+      if (getIsPieceSacrifice(fens[index - 1], playedMove, rawPosition.lines[0].pv)) {
+        return {
+          ...rawPosition,
+          opening: currentOpening,
+          moveClassification: MoveClassification.Splendid,
+        };
+      }
+
+      // Great: The move played is the only good move (alternatives collapse significantly)
       return {
         ...rawPosition,
         opening: currentOpening,
@@ -94,166 +93,21 @@ export const getMovesClassification = (
       };
     }
 
-    if (playedMove === prevPosition.bestMove) {
-      return {
-        ...rawPosition,
-        opening: currentOpening,
-        moveClassification: MoveClassification.Best,
-      };
-    }
-
-    const moveClassification = getMoveBasicClassification(
-      lastPositionWinPercentage,
-      positionWinPercentage,
-      isWhiteMove
-    );
-
+    // Standard classifications
     return {
       ...rawPosition,
       opening: currentOpening,
-      moveClassification,
+      moveClassification: classifyByWinPctChange(winPctChange),
     };
   });
 
   return positions;
 };
 
-const getMoveBasicClassification = (
-  lastPositionWinPercentage: number,
-  positionWinPercentage: number,
-  isWhiteMove: boolean
-): MoveClassification => {
-  const winPercentageDiff =
-    (positionWinPercentage - lastPositionWinPercentage) *
-    (isWhiteMove ? 1 : -1);
-
-  if (winPercentageDiff < -20) return MoveClassification.Blunder;
-  if (winPercentageDiff < -10) return MoveClassification.Mistake;
-  if (winPercentageDiff < -5) return MoveClassification.Inaccuracy;
-  if (winPercentageDiff < -2) return MoveClassification.Okay;
+const classifyByWinPctChange = (winPctChange: number): MoveClassification => {
+  if (winPctChange < BLUNDER_THRESHOLD) return MoveClassification.Blunder;
+  if (winPctChange < MISTAKE_THRESHOLD) return MoveClassification.Mistake;
+  if (winPctChange < INACCURACY_THRESHOLD) return MoveClassification.Inaccuracy;
+  if (winPctChange < EXCELLENT_THRESHOLD) return MoveClassification.Okay;
   return MoveClassification.Excellent;
-};
-
-const isSplendidMove = (
-  lastPositionWinPercentage: number,
-  positionWinPercentage: number,
-  isWhiteMove: boolean,
-  playedMove: string,
-  bestLinePvToPlay: string[],
-  fen: string,
-  lastPositionAlternativeLineWinPercentage: number | undefined
-): boolean => {
-  if (!lastPositionAlternativeLineWinPercentage) return false;
-
-  const winPercentageDiff =
-    (positionWinPercentage - lastPositionWinPercentage) *
-    (isWhiteMove ? 1 : -1);
-  if (winPercentageDiff < -2) return false;
-
-  const isPieceSacrifice = getIsPieceSacrifice(
-    fen,
-    playedMove,
-    bestLinePvToPlay
-  );
-  if (!isPieceSacrifice) return false;
-
-  if (
-    isLosingOrAlternateCompletelyWinning(
-      positionWinPercentage,
-      lastPositionAlternativeLineWinPercentage,
-      isWhiteMove
-    )
-  ) {
-    return false;
-  }
-
-  return true;
-};
-
-const isLosingOrAlternateCompletelyWinning = (
-  positionWinPercentage: number,
-  lastPositionAlternativeLineWinPercentage: number,
-  isWhiteMove: boolean
-): boolean => {
-  const isLosing = isWhiteMove
-    ? positionWinPercentage < 50
-    : positionWinPercentage > 50;
-  const isAlternateCompletelyWinning = isWhiteMove
-    ? lastPositionAlternativeLineWinPercentage > 97
-    : lastPositionAlternativeLineWinPercentage < 3;
-
-  return isLosing || isAlternateCompletelyWinning;
-};
-
-const isPerfectMove = (
-  lastPositionWinPercentage: number,
-  positionWinPercentage: number,
-  isWhiteMove: boolean,
-  lastPositionAlternativeLineWinPercentage: number | undefined,
-  fenTwoMovesAgo: string | null,
-  uciMoves: [string, string] | null
-): boolean => {
-  if (!lastPositionAlternativeLineWinPercentage) return false;
-
-  const winPercentageDiff =
-    (positionWinPercentage - lastPositionWinPercentage) *
-    (isWhiteMove ? 1 : -1);
-  if (winPercentageDiff < -2) return false;
-
-  if (
-    fenTwoMovesAgo &&
-    uciMoves &&
-    isSimplePieceRecapture(fenTwoMovesAgo, uciMoves)
-  )
-    return false;
-
-  if (
-    isLosingOrAlternateCompletelyWinning(
-      positionWinPercentage,
-      lastPositionAlternativeLineWinPercentage,
-      isWhiteMove
-    )
-  ) {
-    return false;
-  }
-
-  const hasChangedGameOutcome = getHasChangedGameOutcome(
-    lastPositionWinPercentage,
-    positionWinPercentage,
-    isWhiteMove
-  );
-
-  const isTheOnlyGoodMove = getIsTheOnlyGoodMove(
-    positionWinPercentage,
-    lastPositionAlternativeLineWinPercentage,
-    isWhiteMove
-  );
-
-  return hasChangedGameOutcome || isTheOnlyGoodMove;
-};
-
-const getHasChangedGameOutcome = (
-  lastPositionWinPercentage: number,
-  positionWinPercentage: number,
-  isWhiteMove: boolean
-): boolean => {
-  const winPercentageDiff =
-    (positionWinPercentage - lastPositionWinPercentage) *
-    (isWhiteMove ? 1 : -1);
-  return (
-    winPercentageDiff > 10 &&
-    ((lastPositionWinPercentage < 50 && positionWinPercentage > 50) ||
-      (lastPositionWinPercentage > 50 && positionWinPercentage < 50))
-  );
-};
-
-const getIsTheOnlyGoodMove = (
-  positionWinPercentage: number,
-  lastPositionAlternativeLineWinPercentage: number,
-  isWhiteMove: boolean
-): boolean => {
-  const winPercentageDiff =
-    (positionWinPercentage - lastPositionAlternativeLineWinPercentage) *
-    (isWhiteMove ? 1 : -1);
-  return winPercentageDiff > 10;
 };
