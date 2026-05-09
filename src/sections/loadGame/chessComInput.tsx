@@ -23,7 +23,7 @@ export default function ChessComInput({ onSelect }: Props) {
     "chesscom-username",
     ""
   );
-  const [chessComUsername, setChessComUsername] = useState("");
+  const [chessComUsername, setChessComUsername] = useState(rawStoredValue?.split(",")[0] ?? "");
   const [hasEdited, setHasEdited] = useState(false);
 
   const storedValues = useMemo(() => {
@@ -70,11 +70,12 @@ export default function ChessComInput({ onSelect }: Props) {
     setHasEdited(true);
   };
 
-  const debouncedUsername = useDebounce(chessComUsername, 300);
+  const debouncedUsername = useDebounce(chessComUsername, 450);
 
   const {
     data: games,
-    isFetching,
+    isRefetching,
+    isLoading,
     isError,
   } = useQuery({
     queryKey: ["CCUserGames", debouncedUsername],
@@ -128,6 +129,8 @@ export default function ChessComInput({ onSelect }: Props) {
         />
       </FormControl>
 
+      {isRefetching && <CircularProgress sx={{ ml: 2 }} />}
+
       {debouncedUsername && (
         <Grid
           container
@@ -137,7 +140,7 @@ export default function ChessComInput({ onSelect }: Props) {
           minHeight={100}
           size={12}
         >
-          {isFetching ? (
+          {isLoading ? (
             <CircularProgress />
           ) : isError ? (
             <span style={{ color: "salmon" }}>
