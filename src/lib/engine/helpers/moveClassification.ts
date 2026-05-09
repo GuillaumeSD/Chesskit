@@ -51,7 +51,8 @@ export const getMovesClassification = (
       };
     }
 
-    const isWhiteMove = index % 2 === 1;
+    const sideToMove = fens[index - 1].split(" ")[1];
+    const isWhiteMove = sideToMove === "w";
     const lastWinPct = positionsWinPercentage[index - 1];
     const currentWinPct = positionsWinPercentage[index];
     const winPctChange = (currentWinPct - lastWinPct) * (isWhiteMove ? 1 : -1);
