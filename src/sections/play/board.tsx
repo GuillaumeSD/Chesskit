@@ -16,6 +16,7 @@ import Board from "@/components/board";
 import { useGameData } from "@/hooks/useGameData";
 import { usePlayersData } from "@/hooks/usePlayersData";
 import { sleep } from "@/lib/helpers";
+import { useGameSound } from "@/hooks/useGameSound";
 
 export default function BoardContainer() {
   const screenSize = useScreenSize();
@@ -68,6 +69,7 @@ export default function BoardContainer() {
   }, [screenSize]);
 
   useGameData(gameAtom, gameDataAtom);
+  useGameSound(gameAtom);
 
   return (
     <Board

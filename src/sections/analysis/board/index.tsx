@@ -12,6 +12,7 @@ import { useScreenSize } from "@/hooks/useScreenSize";
 import { Color } from "@/types/enums";
 import Board from "@/components/board";
 import { usePlayersData } from "@/hooks/usePlayersData";
+import { useGameSound } from "@/hooks/useGameSound";
 
 export default function BoardContainer() {
   const screenSize = useScreenSize();
@@ -30,6 +31,8 @@ export default function BoardContainer() {
 
     return Math.min(width - 700, height * 0.92);
   }, [screenSize]);
+
+  useGameSound(boardAtom);
 
   return (
     <Board

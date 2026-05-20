@@ -35,3 +35,14 @@ export enum Color {
   White = "w",
   Black = "b",
 }
+
+export enum SoundTheme {
+  Standard = "standard",
+  Piano = "piano",
+  NES = "nes",
+  SFX = "sfx",
+  Futuristic = "futuristic",
+  Lisp = "lisp",
+  Woodland = "woodland",
+  Robot = "robot",
+}

@@ -21,3 +21,5 @@ tsconfig.tsbuildinfo
 .cdk.staging
 cdk.out
 cdk.context.json
+
+._*
