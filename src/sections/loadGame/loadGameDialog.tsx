@@ -1,5 +1,5 @@
 import { useGameDatabase } from "@/hooks/useGameDatabase";
-import { getGameFromPgn } from "@/lib/chess";
+import { getGameFromFen, getGameFromPgn } from "@/lib/chess";
 import { GameOrigin } from "@/types/enums";
 import {
   MenuItem,
@@ -25,6 +25,7 @@ import { useLocalStorage } from "@/hooks/useLocalStorage";
 import LichessInput from "./lichessInput";
 import { useSetAtom } from "jotai";
 import { boardOrientationAtom } from "../analysis/states";
+import GameFenInput from "./gameFenInput";
 
 interface Props {
   open: boolean;
@@ -34,6 +35,7 @@ interface Props {
 
 export default function NewGameDialog({ open, onClose, setGame }: Props) {
   const [pgn, setPgn] = useState("");
+  const [fen, setFen] = useState("");
   const [gameOrigin, setGameOrigin] = useLocalStorage(
     "preferred-game-origin",
     GameOrigin.ChessCom
@@ -43,12 +45,19 @@ export default function NewGameDialog({ open, onClose, setGame }: Props) {
   const setBoardOrientation = useSetAtom(boardOrientationAtom);
   const { addGame } = useGameDatabase();
 
-  const handleAddGame = async (pgn: string, boardOrientation?: boolean) => {
-    if (!pgn) return;
+  const handleAddGame = async (input: string, boardOrientation?: boolean) => {
+    if (!input) return;
 
     try {
-      const gameToAdd = getGameFromPgn(pgn);
-      setSentryContext("loadedGame", { pgn });
+      let gameToAdd: Chess;
+
+      if (gameOrigin === GameOrigin.Fen) {
+        gameToAdd = getGameFromFen(input);
+        setSentryContext("loadedGame", { fen: input });
+      } else {
+        gameToAdd = getGameFromPgn(input);
+        setSentryContext("loadedGame", { pgn: input });
+      }
 
       if (setGame) {
         await setGame(gameToAdd);
@@ -139,6 +148,10 @@ export default function NewGameDialog({ open, onClose, setGame }: Props) {
             <GamePgnInput pgn={pgn} setPgn={setPgn} />
           )}
 
+          {gameOrigin === GameOrigin.Fen && (
+            <GameFenInput fen={fen} setFen={setFen} />
+          )}
+
           {gameOrigin === GameOrigin.ChessCom && (
             <ChessComInput onSelect={handleAddGame} />
           )}
@@ -163,12 +176,12 @@ export default function NewGameDialog({ open, onClose, setGame }: Props) {
         <Button variant="outlined" onClick={handleClose}>
           Cancel
         </Button>
-        {gameOrigin === GameOrigin.Pgn && (
+        {(gameOrigin === GameOrigin.Pgn || gameOrigin === GameOrigin.Fen) && (
           <Button
             variant="contained"
             sx={{ marginLeft: 2 }}
             onClick={() => {
-              handleAddGame(pgn);
+              handleAddGame(gameOrigin === GameOrigin.Fen ? fen : pgn);
             }}
           >
             Add
@@ -183,4 +196,5 @@ const gameOriginLabel: Record<GameOrigin, string> = {
   [GameOrigin.ChessCom]: "Chess.com",
   [GameOrigin.Lichess]: "Lichess.org",
   [GameOrigin.Pgn]: "PGN",
+  [GameOrigin.Fen]: "FEN",
 };
