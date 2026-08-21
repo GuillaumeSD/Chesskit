@@ -14,7 +14,6 @@ import { Chess } from "chess.js";
 import { useRouter } from "next/router";
 import { GameEval } from "@/types/eval";
 import { fetchLichessGame } from "@/lib/lichess";
-import { fetchChessComGame } from "@/lib/chessCom";
 import { decodePgnParam, encodePgnParam } from "@/lib/shareLink";
 import { Alert, Snackbar } from "@mui/material";
 
@@ -52,18 +51,11 @@ export default function LoadGame() {
 
   const {
     lichessGameId,
-    chessComUsername,
-    chessComGameId,
     pgn: pgnParam,
     orientation: orientationParam,
   } = router.query;
 
   const hasLichessParam = typeof lichessGameId === "string" && !!lichessGameId;
-  const hasChessComParams =
-    typeof chessComUsername === "string" &&
-    !!chessComUsername &&
-    typeof chessComGameId === "string" &&
-    !!chessComGameId;
   const hasPgnParam = typeof pgnParam === "string" && !!pgnParam;
 
   useEffect(() => {
@@ -90,17 +82,6 @@ export default function LoadGame() {
             throw new Error(`Unable to load Lichess game ${lichessGameId}`);
           }
           resetAndSetGamePgn(res, isWhiteOrientation);
-          return;
-        }
-
-        if (hasChessComParams) {
-          const pgn = await fetchChessComGame(
-            chessComUsername,
-            chessComGameId,
-            controller.signal
-          );
-          if (controller.signal.aborted) return;
-          resetAndSetGamePgn(pgn, isWhiteOrientation);
         }
       } catch (error) {
         if (controller.signal.aborted) return;
@@ -122,7 +103,7 @@ export default function LoadGame() {
       // Skip a pgn param this component published itself: the board already
       // holds that game, and reloading it would fight with the user.
       !(hasPgnParam && pgnParam === publishedPgnParamRef.current) &&
-      (hasPgnParam || hasLichessParam || hasChessComParams)
+      (hasPgnParam || hasLichessParam)
     ) {
       loadSharedGame();
     }
@@ -132,10 +113,7 @@ export default function LoadGame() {
     gameFromUrl,
     hasPgnParam,
     hasLichessParam,
-    hasChessComParams,
     lichessGameId,
-    chessComUsername,
-    chessComGameId,
     pgnParam,
     orientationParam,
     resetAndSetGamePgn,
@@ -146,7 +124,7 @@ export default function LoadGame() {
   // far nicer to share than a 1.5KB blob, and resolves to the same game.
   useEffect(() => {
     if (joinedGameHistory.length === 0) return;
-    if (hasLichessParam || hasChessComParams) return;
+    if (hasLichessParam) return;
 
     let cancelled = false;
 
@@ -166,7 +144,7 @@ export default function LoadGame() {
     return () => {
       cancelled = true;
     };
-  }, [game, joinedGameHistory, hasLichessParam, hasChessComParams, router]);
+  }, [game, joinedGameHistory, hasLichessParam, router]);
 
   const isGameLoaded =
     gameFromUrl !== undefined ||
