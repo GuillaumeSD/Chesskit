@@ -1,5 +1,5 @@
 import LoadGameButton from "../../loadGame/loadGameButton";
-import { useCallback, useEffect, useMemo } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useChessActions } from "@/hooks/useChessActions";
 import {
   boardAtom,
@@ -14,6 +14,8 @@ import { Chess } from "chess.js";
 import { useRouter } from "next/router";
 import { GameEval } from "@/types/eval";
 import { fetchLichessGame } from "@/lib/lichess";
+import { decodePgnParam, encodePgnParam } from "@/lib/shareLink";
+import { Alert, Snackbar } from "@mui/material";
 
 export default function LoadGame() {
   const router = useRouter();
@@ -24,6 +26,12 @@ export default function LoadGame() {
   const setEval = useSetAtom(gameEvalAtom);
   const setBoardOrientation = useSetAtom(boardOrientationAtom);
   const evaluationProgress = useAtomValue(evaluationProgressAtom);
+  const [loadError, setLoadError] = useState("");
+  const [isLoadingSharedGame, setIsLoadingSharedGame] = useState(false);
+
+  // Params this component wrote itself, so the loading effect can tell them
+  // apart from a link the user actually opened.
+  const publishedPgnParamRef = useRef<string | undefined>(undefined);
 
   const joinedGameHistory = useMemo(() => game.history().join(), [game]);
 
@@ -41,13 +49,48 @@ export default function LoadGame() {
     [joinedGameHistory, resetBoard, setGamePgn, setEval, setBoardOrientation]
   );
 
-  const { lichessGameId, orientation: orientationParam } = router.query;
+  const {
+    lichessGameId,
+    pgn: pgnParam,
+    orientation: orientationParam,
+  } = router.query;
+
+  const hasLichessParam = typeof lichessGameId === "string" && !!lichessGameId;
+  const hasPgnParam = typeof pgnParam === "string" && !!pgnParam;
 
   useEffect(() => {
-    const handleLichess = async (id: string) => {
-      const res = await fetchLichessGame(id);
-      if (typeof res === "string") {
-        resetAndSetGamePgn(res, orientationParam !== "black");
+    const controller = new AbortController();
+    const isWhiteOrientation = orientationParam !== "black";
+
+    const loadSharedGame = async () => {
+      setIsLoadingSharedGame(true);
+      setLoadError("");
+
+      try {
+        if (hasPgnParam) {
+          const pgn = await decodePgnParam(pgnParam);
+          if (controller.signal.aborted) return;
+          if (!pgn) throw new Error("This shared link is invalid or corrupted");
+          resetAndSetGamePgn(pgn, isWhiteOrientation);
+          return;
+        }
+
+        if (hasLichessParam) {
+          const res = await fetchLichessGame(lichessGameId, controller.signal);
+          if (controller.signal.aborted) return;
+          if (typeof res !== "string") {
+            throw new Error(`Unable to load Lichess game ${lichessGameId}`);
+          }
+          resetAndSetGamePgn(res, isWhiteOrientation);
+        }
+      } catch (error) {
+        if (controller.signal.aborted) return;
+        console.error(error);
+        setLoadError(
+          error instanceof Error ? error.message : "Unable to load shared game"
+        );
+      } finally {
+        if (!controller.signal.aborted) setIsLoadingSharedGame(false);
       }
     };
 
@@ -56,53 +99,94 @@ export default function LoadGame() {
         gameFromUrl.site === "Chesskit.org" && gameFromUrl.black.name === "You"
       );
       resetAndSetGamePgn(gameFromUrl.pgn, orientation, gameFromUrl.eval);
-    } else if (typeof lichessGameId === "string" && !!lichessGameId) {
-      handleLichess(lichessGameId);
+    } else if (
+      // Skip a pgn param this component published itself: the board already
+      // holds that game, and reloading it would fight with the user.
+      !(hasPgnParam && pgnParam === publishedPgnParamRef.current) &&
+      (hasPgnParam || hasLichessParam)
+    ) {
+      loadSharedGame();
     }
-  }, [gameFromUrl, lichessGameId, orientationParam, resetAndSetGamePgn]);
 
+    return () => controller.abort();
+  }, [
+    gameFromUrl,
+    hasPgnParam,
+    hasLichessParam,
+    lichessGameId,
+    pgnParam,
+    orientationParam,
+    resetAndSetGamePgn,
+  ]);
+
+  // Keep the address bar carrying the loaded game, so copying the URL shares it.
+  // Links that already name a source stay as they are — `?lichessGameId=x` is
+  // far nicer to share than a 1.5KB blob, and resolves to the same game.
   useEffect(() => {
-    const eventHandler = (event: MessageEvent) => {
-      try {
-        if (!event?.data?.pgn) return;
-        const { pgn, orientation } = event.data as {
-          pgn: string;
-          orientation?: "white" | "black";
-        };
-        resetAndSetGamePgn(pgn, orientation !== "black");
-      } catch (error) {
-        console.error("Error processing message event:", error);
-      }
-    };
-    window.addEventListener("message", eventHandler);
+    if (joinedGameHistory.length === 0) return;
+    if (hasLichessParam) return;
+
+    let cancelled = false;
+
+    encodePgnParam(game.pgn())
+      .then((param) => {
+        if (cancelled || router.query.pgn === param) return;
+
+        publishedPgnParamRef.current = param;
+        router.replace(
+          { pathname: router.pathname, query: { ...router.query, pgn: param } },
+          undefined,
+          { shallow: true, scroll: false }
+        );
+      })
+      .catch((error) => console.error("Unable to publish share link", error));
 
     return () => {
-      window.removeEventListener("message", eventHandler);
+      cancelled = true;
     };
-  }, [resetAndSetGamePgn]);
+  }, [game, joinedGameHistory, hasLichessParam, router]);
 
   const isGameLoaded =
     gameFromUrl !== undefined ||
     (!!game.getHeaders().White && game.getHeaders().White !== "?") ||
     game.history().length > 0;
 
-  if (evaluationProgress) return null;
-
   return (
-    <LoadGameButton
-      label={isGameLoaded ? "Load another game" : "Load game"}
-      size="small"
-      setGame={async (game) => {
-        await router.replace(
-          {
-            query: {},
-            pathname: router.pathname,
-          },
-          undefined,
-          { shallow: true, scroll: false }
-        );
-        resetAndSetGamePgn(game.pgn());
-      }}
-    />
+    <>
+      <Snackbar open={isLoadingSharedGame && !loadError}>
+        <Alert severity="info" variant="filled" sx={{ width: "100%" }}>
+          Loading shared game...
+        </Alert>
+      </Snackbar>
+
+      <Snackbar open={!!loadError}>
+        <Alert
+          onClose={() => setLoadError("")}
+          severity="error"
+          variant="filled"
+          sx={{ width: "100%" }}
+        >
+          {loadError}
+        </Alert>
+      </Snackbar>
+
+      {!evaluationProgress && (
+        <LoadGameButton
+          label={isGameLoaded ? "Load another game" : "Load game"}
+          size="small"
+          setGame={async (game) => {
+            await router.replace(
+              {
+                query: {},
+                pathname: router.pathname,
+              },
+              undefined,
+              { shallow: true, scroll: false }
+            );
+            resetAndSetGamePgn(game.pgn());
+          }}
+        />
+      )}
+    </>
   );
 }
