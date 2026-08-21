@@ -77,6 +77,7 @@ export default function LoadGame() {
       try {
         if (hasPgnParam) {
           const pgn = await decodePgnParam(pgnParam);
+          if (controller.signal.aborted) return;
           if (!pgn) throw new Error("This shared link is invalid or corrupted");
           resetAndSetGamePgn(pgn, isWhiteOrientation);
           return;
@@ -84,6 +85,7 @@ export default function LoadGame() {
 
         if (hasLichessParam) {
           const res = await fetchLichessGame(lichessGameId, controller.signal);
+          if (controller.signal.aborted) return;
           if (typeof res !== "string") {
             throw new Error(`Unable to load Lichess game ${lichessGameId}`);
           }
@@ -97,6 +99,7 @@ export default function LoadGame() {
             chessComGameId,
             controller.signal
           );
+          if (controller.signal.aborted) return;
           resetAndSetGamePgn(pgn, isWhiteOrientation);
         }
       } catch (error) {
@@ -116,12 +119,11 @@ export default function LoadGame() {
       );
       resetAndSetGamePgn(gameFromUrl.pgn, orientation, gameFromUrl.eval);
     } else if (
-      // A pgn param this component published is already loaded in the board.
-      hasPgnParam &&
-      pgnParam === publishedPgnParamRef.current
+      // Skip a pgn param this component published itself: the board already
+      // holds that game, and reloading it would fight with the user.
+      !(hasPgnParam && pgnParam === publishedPgnParamRef.current) &&
+      (hasPgnParam || hasLichessParam || hasChessComParams)
     ) {
-      return;
-    } else if (hasPgnParam || hasLichessParam || hasChessComParams) {
       loadSharedGame();
     }
 

@@ -13,8 +13,13 @@
 const FORMAT_GZIP = "1";
 const FORMAT_RAW = "0";
 
-/** Guards against a hand-crafted URL trying to inflate a decompression bomb. */
-const MAX_DECODED_PGN_LENGTH = 500_000;
+/**
+ * Decompression is bounded as it runs, not checked afterwards: gzip reaches
+ * ratios near 1000:1, so a ~270KB param can inflate to 200MB and take the tab
+ * down well before any check on the finished string could reject it.
+ */
+const MAX_DECODED_PGN_BYTES = 500_000;
+const MAX_PARAM_LENGTH = 100_000;
 
 const isCompressionSupported = (): boolean =>
   typeof CompressionStream === "function" &&
@@ -56,12 +61,43 @@ const gzip = async (value: string): Promise<Uint8Array> => {
   return new Uint8Array(await new Response(stream).arrayBuffer());
 };
 
-const gunzip = async (bytes: Uint8Array): Promise<string> => {
-  const stream = new Blob([bytes])
+/**
+ * Inflates gzip data, giving up as soon as the output passes `maxBytes` so a
+ * decompression bomb is abandoned mid-stream rather than fully expanded.
+ */
+const gunzipBounded = async (
+  bytes: Uint8Array,
+  maxBytes: number
+): Promise<string | undefined> => {
+  const reader = new Blob([bytes])
     .stream()
-    .pipeThrough(new DecompressionStream("gzip"));
+    .pipeThrough(new DecompressionStream("gzip"))
+    .getReader();
 
-  return new Response(stream).text();
+  const chunks: Uint8Array[] = [];
+  let size = 0;
+
+  for (;;) {
+    const { done, value } = await reader.read();
+    if (done) break;
+
+    size += value.length;
+    if (size > maxBytes) {
+      await reader.cancel();
+      return undefined;
+    }
+
+    chunks.push(value);
+  }
+
+  const decoded = new Uint8Array(size);
+  let offset = 0;
+  for (const chunk of chunks) {
+    decoded.set(chunk, offset);
+    offset += chunk.length;
+  }
+
+  return new TextDecoder().decode(decoded);
 };
 
 /** Encodes a PGN into the value used by the `pgn` query param. */
@@ -82,6 +118,8 @@ export const decodePgnParam = async (
   param: string
 ): Promise<string | undefined> => {
   try {
+    if (param.length > MAX_PARAM_LENGTH) return undefined;
+
     const format = param.slice(0, 1);
     const payload = param.slice(1);
     if (!payload) return undefined;
@@ -89,14 +127,13 @@ export const decodePgnParam = async (
     const bytes = base64UrlToBytes(payload);
 
     if (format === FORMAT_RAW) {
-      const pgn = new TextDecoder().decode(bytes);
-      return pgn.length > MAX_DECODED_PGN_LENGTH ? undefined : pgn;
+      if (bytes.length > MAX_DECODED_PGN_BYTES) return undefined;
+      return new TextDecoder().decode(bytes);
     }
 
     if (format === FORMAT_GZIP) {
       if (!isCompressionSupported()) return undefined;
-      const pgn = await gunzip(bytes);
-      return pgn.length > MAX_DECODED_PGN_LENGTH ? undefined : pgn;
+      return await gunzipBounded(bytes, MAX_DECODED_PGN_BYTES);
     }
 
     return undefined;
