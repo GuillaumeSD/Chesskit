@@ -9,6 +9,7 @@ import SaveButton from "./saveButton";
 import { useEffect } from "react";
 import { ToolbarButton } from "@/components/ToolbarButton";
 import { CopyPgnButton } from "./copyPgnButton";
+import { ShareGameButton } from "./shareGameButton";
 
 export default function PanelToolBar() {
   const board = useAtomValue(boardAtom);
@@ -69,6 +70,7 @@ export default function PanelToolBar() {
         {isSmOrGreater && (
           <>
             <CopyPgnButton />
+            <ShareGameButton />
             <SaveButton />
           </>
         )}
@@ -83,6 +85,7 @@ export default function PanelToolBar() {
         >
           <FlipBoardButton />
           <CopyPgnButton />
+          <ShareGameButton />
           <SaveButton />
         </Stack>
       )}
