@@ -24,8 +24,6 @@ export default function GameDatabase() {
   const { games, deleteGame } = useGameDatabase(true);
   const router = useRouter();
 
-  console.log(games);
-
   const handleDeleteGameRow = useCallback(
     (id: GridRowId) => async () => {
       if (typeof id !== "number") {
@@ -41,7 +39,11 @@ export default function GameDatabase() {
       if (typeof id !== "number") {
         throw new Error("Unable to copy game");
       }
-      await navigator.clipboard?.writeText?.(games[id - 1].pgn);
+      const game = games.find((g) => g.id === id);
+      if (!game) {
+        throw new Error(`Game ${id} not found`);
+      }
+      await navigator.clipboard?.writeText?.(game.pgn);
     },
     [games]
   );
