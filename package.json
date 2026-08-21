@@ -24,6 +24,7 @@
     "firebase": "^11.1.0",
     "idb": "^8.0.1",
     "jotai": "^2.11.0",
+    "lz-string": "^1.5.0",
     "next": "16.2.3",
     "react": "19.2.5",
     "react-chessboard": "^4.7.3",
