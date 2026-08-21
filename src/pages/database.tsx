@@ -24,8 +24,6 @@ export default function GameDatabase() {
   const { games, deleteGame } = useGameDatabase(true);
   const router = useRouter();
 
-  console.log(games);
-
   const handleDeleteGameRow = useCallback(
     (id: GridRowId) => async () => {
       if (typeof id !== "number") {
