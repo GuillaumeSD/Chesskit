@@ -41,7 +41,11 @@ export default function GameDatabase() {
       if (typeof id !== "number") {
         throw new Error("Unable to copy game");
       }
-      await navigator.clipboard?.writeText?.(games[id - 1].pgn);
+      const game = games.find((g) => g.id === id);
+      if (!game) {
+        throw new Error(`Game ${id} not found`);
+      }
+      await navigator.clipboard?.writeText?.(game.pgn);
     },
     [games]
   );
