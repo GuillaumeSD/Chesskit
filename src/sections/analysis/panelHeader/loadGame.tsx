@@ -1,5 +1,5 @@
 import LoadGameButton from "../../loadGame/loadGameButton";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useChessActions } from "@/hooks/useChessActions";
 import {
   boardAtom,
@@ -15,7 +15,7 @@ import { useRouter } from "next/router";
 import { GameEval } from "@/types/eval";
 import { fetchLichessGame } from "@/lib/lichess";
 import { fetchChessComGame } from "@/lib/chessCom";
-import { decodePgnParam } from "@/lib/shareLink";
+import { decodePgnParam, encodePgnParam } from "@/lib/shareLink";
 import { Alert, Snackbar } from "@mui/material";
 
 export default function LoadGame() {
@@ -29,6 +29,10 @@ export default function LoadGame() {
   const evaluationProgress = useAtomValue(evaluationProgressAtom);
   const [loadError, setLoadError] = useState("");
   const [isLoadingSharedGame, setIsLoadingSharedGame] = useState(false);
+
+  // Params this component wrote itself, so the loading effect can tell them
+  // apart from a link the user actually opened.
+  const publishedPgnParamRef = useRef<string | undefined>(undefined);
 
   const joinedGameHistory = useMemo(() => game.history().join(), [game]);
 
@@ -54,6 +58,14 @@ export default function LoadGame() {
     orientation: orientationParam,
   } = router.query;
 
+  const hasLichessParam = typeof lichessGameId === "string" && !!lichessGameId;
+  const hasChessComParams =
+    typeof chessComUsername === "string" &&
+    !!chessComUsername &&
+    typeof chessComGameId === "string" &&
+    !!chessComGameId;
+  const hasPgnParam = typeof pgnParam === "string" && !!pgnParam;
+
   useEffect(() => {
     const controller = new AbortController();
     const isWhiteOrientation = orientationParam !== "black";
@@ -63,14 +75,14 @@ export default function LoadGame() {
       setLoadError("");
 
       try {
-        if (typeof pgnParam === "string" && pgnParam) {
+        if (hasPgnParam) {
           const pgn = await decodePgnParam(pgnParam);
           if (!pgn) throw new Error("This shared link is invalid or corrupted");
           resetAndSetGamePgn(pgn, isWhiteOrientation);
           return;
         }
 
-        if (typeof lichessGameId === "string" && lichessGameId) {
+        if (hasLichessParam) {
           const res = await fetchLichessGame(lichessGameId, controller.signal);
           if (typeof res !== "string") {
             throw new Error(`Unable to load Lichess game ${lichessGameId}`);
@@ -79,12 +91,7 @@ export default function LoadGame() {
           return;
         }
 
-        if (
-          typeof chessComUsername === "string" &&
-          chessComUsername &&
-          typeof chessComGameId === "string" &&
-          chessComGameId
-        ) {
+        if (hasChessComParams) {
           const pgn = await fetchChessComGame(
             chessComUsername,
             chessComGameId,
@@ -108,13 +115,22 @@ export default function LoadGame() {
         gameFromUrl.site === "Chesskit.org" && gameFromUrl.black.name === "You"
       );
       resetAndSetGamePgn(gameFromUrl.pgn, orientation, gameFromUrl.eval);
-    } else {
+    } else if (
+      // A pgn param this component published is already loaded in the board.
+      hasPgnParam &&
+      pgnParam === publishedPgnParamRef.current
+    ) {
+      return;
+    } else if (hasPgnParam || hasLichessParam || hasChessComParams) {
       loadSharedGame();
     }
 
     return () => controller.abort();
   }, [
     gameFromUrl,
+    hasPgnParam,
+    hasLichessParam,
+    hasChessComParams,
     lichessGameId,
     chessComUsername,
     chessComGameId,
@@ -122,6 +138,33 @@ export default function LoadGame() {
     orientationParam,
     resetAndSetGamePgn,
   ]);
+
+  // Keep the address bar carrying the loaded game, so copying the URL shares it.
+  // Links that already name a source stay as they are — `?lichessGameId=x` is
+  // far nicer to share than a 1.5KB blob, and resolves to the same game.
+  useEffect(() => {
+    if (joinedGameHistory.length === 0) return;
+    if (hasLichessParam || hasChessComParams) return;
+
+    let cancelled = false;
+
+    encodePgnParam(game.pgn())
+      .then((param) => {
+        if (cancelled || router.query.pgn === param) return;
+
+        publishedPgnParamRef.current = param;
+        router.replace(
+          { pathname: router.pathname, query: { ...router.query, pgn: param } },
+          undefined,
+          { shallow: true, scroll: false }
+        );
+      })
+      .catch((error) => console.error("Unable to publish share link", error));
+
+    return () => {
+      cancelled = true;
+    };
+  }, [game, joinedGameHistory, hasLichessParam, hasChessComParams, router]);
 
   const isGameLoaded =
     gameFromUrl !== undefined ||
