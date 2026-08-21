@@ -50,6 +50,61 @@ export const getChessComUserRecentGames = async (
   return gamesToReturn;
 };
 
+/**
+ * Chess.com's public API exposes no single-game endpoint, and the undocumented
+ * `/callback/live/game/{id}` route sends no CORS headers, so it is unreachable
+ * from the browser. The only way to resolve a game id is to scan that player's
+ * monthly archives.
+ *
+ * Archives run ~700KB each and an active player can have well over a hundred of
+ * them, so the scan is bounded to the most recent months and walks newest first
+ * — shared games are nearly always recent, so this usually resolves on the first
+ * request.
+ */
+export const CHESS_COM_ARCHIVE_SCAN_LIMIT = 6;
+
+export const fetchChessComGame = async (
+  username: string,
+  gameId: string,
+  signal?: AbortSignal
+): Promise<string> => {
+  const usernameParam = encodeURIComponent(username.trim().toLowerCase());
+
+  const archivesRes = await fetch(
+    `https://api.chess.com/pub/player/${usernameParam}/games/archives`,
+    { method: "GET", signal }
+  );
+
+  if (archivesRes.status >= 400) {
+    throw new Error(`Chess.com user "${username}" not found`);
+  }
+
+  const archivesData = await archivesRes.json();
+  const archives: string[] = archivesData?.archives ?? [];
+
+  const archivesToScan = archives
+    .slice(-CHESS_COM_ARCHIVE_SCAN_LIMIT)
+    .reverse();
+
+  for (const archiveUrl of archivesToScan) {
+    const res = await fetch(archiveUrl, { method: "GET", signal });
+    if (res.status >= 400) continue;
+
+    const data = await res.json();
+    const games: ChessComGame[] = data?.games ?? [];
+
+    const game = games.find(
+      (game) => game.uuid === gameId || game.url?.split("/").pop() === gameId
+    );
+
+    if (game?.pgn) return game.pgn;
+  }
+
+  throw new Error(
+    `Game ${gameId} not found in ${username}'s last ${CHESS_COM_ARCHIVE_SCAN_LIMIT} months on Chess.com`
+  );
+};
+
 export const getChessComUserAvatar = async (
   username: string
 ): Promise<string | null> => {
