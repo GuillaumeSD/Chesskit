@@ -5,6 +5,8 @@ export enum GameOrigin {
 }
 
 export enum EngineName {
+  Stockfish19 = "stockfish_19",
+  Stockfish19Lite = "stockfish_19_lite",
   Stockfish18 = "stockfish_18",
   Stockfish18Lite = "stockfish_18_lite",
   Stockfish17_1 = "stockfish_17_1",

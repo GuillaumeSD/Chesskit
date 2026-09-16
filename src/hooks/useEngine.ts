@@ -5,6 +5,7 @@ import { Stockfish16_1 } from "@/lib/engine/stockfish16_1";
 import { Stockfish17 } from "@/lib/engine/stockfish17";
 import { Stockfish17_1 } from "@/lib/engine/stockfish17_1";
 import { Stockfish18 } from "@/lib/engine/stockfish18";
+import { Stockfish19 } from "@/lib/engine/stockfish19";
 import { UciEngine } from "@/lib/engine/uciEngine";
 import { EngineName } from "@/types/enums";
 import { useEffect, useState } from "react";
@@ -42,6 +43,10 @@ export const useEngine = (engineName: EngineName | undefined) => {
 
 const pickEngine = (engine: EngineName): Promise<UciEngine> => {
   switch (engine) {
+    case EngineName.Stockfish19:
+      return Stockfish19.create(false);
+    case EngineName.Stockfish19Lite:
+      return Stockfish19.create(true);
     case EngineName.Stockfish18:
       return Stockfish18.create(false);
     case EngineName.Stockfish18Lite:
